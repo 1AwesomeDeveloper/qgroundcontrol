@@ -14,6 +14,8 @@
 
 #include <Eigen/Eigen>
 
+#include "customerdata.h"
+
 #include "Vehicle.h"
 #include "MAVLinkProtocol.h"
 #include "FirmwarePluginManager.h"
@@ -62,6 +64,11 @@ QGC_LOGGING_CATEGORY(VehicleLog, "VehicleLog")
 #define UPDATE_TIMER 50
 #define DEFAULT_LAT  38.965767f
 #define DEFAULT_LON -120.083923f
+
+extern bool successfulLogin;
+extern bool droneStatusCheck;
+static QString PixhawkID;
+static int flag=0;
 
 const QString guided_mode_not_supported_by_vehicle = QObject::tr("Guided mode not supported by Vehicle.");
 
@@ -859,6 +866,7 @@ void Vehicle::_handleStatusText(mavlink_message_t& message)
 {
     QByteArray  b;
     QString     messageText;
+    QString     droneNumber,checkdroneNumber;
 
     mavlink_statustext_t statustext;
     mavlink_msg_statustext_decode(&message, &statustext);
@@ -869,6 +877,23 @@ void Vehicle::_handleStatusText(mavlink_message_t& message)
     strncpy(b.data(), statustext.text, MAVLINK_MSG_STATUSTEXT_FIELD_TEXT_LEN);
     b[b.length()-1] = '\0';
     messageText = QString(b);
+
+    droneNumber = statustext.text;
+    if(droneNumber.contains("PX4v") || droneNumber.contains("Pixhawk")){
+        flag=1;
+        droneStatusCheck = false;
+        PixhawkID = droneNumber;
+        qInfo()  << droneNumber;
+        }
+        QByteArray n;
+        n.append("{\"droneNo\":\"");
+        n.append(PixhawkID);
+        n.append("\"}");
+        if(successfulLogin == true && droneStatusCheck == false && flag==1){
+        droneStatusCheck = true;
+        getInstance()->postDroneNo("https://drone-management-api-ankit1998.herokuapp.com/customer/checkMyDrone",n);
+        flag=0;
+        }
     bool includesNullTerminator = messageText.length() < MAVLINK_MSG_STATUSTEXT_FIELD_TEXT_LEN;
 
     if (_chunkedStatusTextInfoMap.contains(compId) && _chunkedStatusTextInfoMap[compId].chunkId != statustext.id) {

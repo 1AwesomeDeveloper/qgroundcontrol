@@ -109,6 +109,9 @@
 #include "QGCMAVLink.h"
 #include "VehicleLinkManager.h"
 
+#include "login.h"
+#include "customerdata.h"
+
 #if defined(QGC_ENABLE_PAIRING)
 #include "PairingManager.h"
 #endif
@@ -517,6 +520,9 @@ void QGCApplication::_initCommon()
     QSettings settings;
 
     // Register our Qml objects
+    qmlRegisterType <Login>         ("com.Login", 1, 0, "Auth");
+    qmlRegisterSingletonType<CustomerData>   ("com.customerData", 1, 0, "Cust",singletonProvider);
+
 
     qmlRegisterType<QGCPalette>     ("QGroundControl.Palette", 1, 0, "QGCPalette");
     qmlRegisterType<QGCMapPalette>  ("QGroundControl.Palette", 1, 0, "QGCMapPalette");
