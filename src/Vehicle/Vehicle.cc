@@ -879,7 +879,7 @@ void Vehicle::_handleStatusText(mavlink_message_t& message)
     messageText = QString(b);
 
     droneNumber = statustext.text;
-    if(droneNumber.contains("PX4v") || droneNumber.contains("Pixhawk")){
+    if(droneNumber.contains("PX4v") || droneNumber.contains("Pixhawk") || droneNumber.contains("fmuv3")){
         flag=1;
         droneStatusCheck = false;
         PixhawkID = droneNumber;

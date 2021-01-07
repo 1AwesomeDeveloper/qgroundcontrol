@@ -96,12 +96,12 @@ void CustomerData::readyReadOTP()
     QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
     QByteArray replyArray = reply->readAll(), m_token;
     int idx = replyArray.lastIndexOf("error");
-    int idx1 = replyArray.lastIndexOf("accessTokens");
+    int idx1 = replyArray.lastIndexOf("accessToken");
     if(idx != -1){
         emit wrongOTP();
         return;
     }
-    idx1 += 15;
+    idx1 += 14;
     for(int i=idx1; i<replyArray.size()-1; i++){
         m_token.append(replyArray[i]);
     }
