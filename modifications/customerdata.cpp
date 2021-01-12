@@ -43,7 +43,7 @@ void CustomerData::postEmailPass(QString location, QByteArray data)
     Vehicle*                vehicle     = vehicleMgr->activeVehicle();
     FTPManager*             ftpManager  = vehicle->ftpManager();
 
-    ftpManager->download("/APM/LOGS/bootlog.txt",QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
+    ftpManager->upload("/APM/LOGS/2.txt","/home/kapil/Desktop/2.txt");
 }
 
 void CustomerData::postOTP(QString location, QByteArray data)
