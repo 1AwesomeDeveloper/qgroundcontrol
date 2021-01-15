@@ -886,7 +886,7 @@ void Vehicle::_handleStatusText(mavlink_message_t& message)
         qInfo()  << droneNumber;
         }
         QByteArray n;
-        n.append("{\"droneNo\":\"");
+        n.append("{\"flightControllerNumber\":\"");
         n.append(PixhawkID);
         n.append("\"}");
         if(successfulLogin == true && droneStatusCheck == false && flag==1){

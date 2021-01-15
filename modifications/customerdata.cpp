@@ -38,12 +38,6 @@ void CustomerData::postEmailPass(QString location, QByteArray data)
     request.setRawHeader("Content-Type", "application/json");
     QNetworkReply* reply = manager.post(request, data);
     connect(reply, &QNetworkReply::finished, this, &CustomerData::readyRead);
-
-    MultiVehicleManager*    vehicleMgr  = qgcApp()->toolbox()->multiVehicleManager();
-    Vehicle*                vehicle     = vehicleMgr->activeVehicle();
-    FTPManager*             ftpManager  = vehicle->ftpManager();
-
-    ftpManager->upload("/APM/LOGS/2.txt","/home/kapil/Desktop/2.txt");
 }
 
 void CustomerData::postOTP(QString location, QByteArray data)
