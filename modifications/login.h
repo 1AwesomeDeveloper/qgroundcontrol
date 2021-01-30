@@ -2,6 +2,8 @@
 #define LOGIN_H
 
 #include "customerdata.h"
+#include "QGCApplication.h"
+#include "LinkManager.h"
 
 class Login: public QObject
 {
@@ -12,8 +14,12 @@ class Login: public QObject
     Q_PROPERTY(bool okButton READ okButton WRITE checkDataBase NOTIFY verifyCredentials)
     Q_PROPERTY(bool otpButton READ otpButton WRITE checkOTP NOTIFY verifyOTP)
     Q_PROPERTY(QString droneNo READ droneNo WRITE setDroneNo NOTIFY droneNoChanged)
+
+    Q_PROPERTY(bool logoutButton READ logoutButton WRITE custLogout NOTIFY logoutCustomer)
 public:
     explicit Login(QObject *parent = nullptr);
+    Q_INVOKABLE bool getLoginStatus(){return loginStatus;}
+    Q_INVOKABLE bool getOTPStatus(){return OTPStatus;}
 
     QString userName();
     QString otp();
@@ -31,6 +37,8 @@ public:
     void checkDataBase(bool okButton);
     void checkOTP(bool otpButton);
 
+    void custLogout(bool logoutButton);
+
 signals:
     void userNameChanged();
     void otpChanged();
@@ -39,7 +47,29 @@ signals:
     void verifyOTP();
     void droneNoChanged(); // notifying  when droneNo changed
 
+    void loggedInStatusChange();
+    void logoutCustomer();
+
+private slots:
+    void LoginSuccessful();
+    void LoginFailed();
+
+    void OTPSuccessful();
+    void OTPFailed();
+
+    void logoutSuccessful();
+    void logoutFailed();
+
 private:
+    void changeLoginStatus(bool status){
+        loginStatus = status;
+        emit loggedInStatusChange();
+    }
+    void changeOTPStatus(bool status){
+        OTPStatus = status;
+        emit loggedInStatusChange();
+    }
+    bool loginStatus, OTPStatus;
     QString m_userName;
     QString m_passWord;
     QString m_otp;

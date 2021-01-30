@@ -32,6 +32,10 @@
 #include "FactSystem.h"
 #include "GPSRTKFactGroup.h"
 
+//...............Edited..............//
+#include "customerdata.h"
+//...................................//
+
 #ifdef QGC_RTLAB_ENABLED
 #include "OpalLink.h"
 #endif
@@ -59,6 +63,13 @@ class QGCApplication : public QApplication
 public:
     QGCApplication(int &argc, char* argv[], bool unitTesting);
     ~QGCApplication();
+
+    //...............Edited..............//
+    CustomerData* getCust(void){
+        if(!_cust) _cust = new CustomerData();
+        return _cust;
+    }
+    //...................................//
 
     /// @brief Sets the persistent flag to delete all settings the next time QGroundControl is started.
     void deleteAllSettingsNextBoot(void);
@@ -178,6 +189,11 @@ private slots:
     void _showDelayedAppMessages                    (void);
 
 private:
+    //...............Edited..............//
+    CustomerData* _cust = nullptr;
+    //...................................//
+
+
     QObject*    _rootQmlObject          ();
     void        _checkForNewVersion     ();
     void        _exitWithError          (QString errorMessage);

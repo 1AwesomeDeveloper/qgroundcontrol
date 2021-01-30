@@ -8,17 +8,9 @@
 
 bool successfulLogin = false;
 bool droneStatusCheck = false;
-static QByteArray globalToken; // Global variable for token outside the class
 
 // Singleton
-static CustomerData* customer = nullptr;
-CustomerData*
-getInstance()
-{
-    if(!customer)
-        customer = new CustomerData();
-    return customer;
-}
+
 CustomerData::CustomerData(QObject* parent): QObject(parent)
 {
 }
@@ -56,10 +48,20 @@ void CustomerData::postDroneNo(QString location, QByteArray data)
     qInfo() <<"Posting drone number to Server...";
     QNetworkRequest request = QNetworkRequest(QUrl(location));
     request.setHeader(QNetworkRequest::ContentTypeHeader , "application/json");
-    request.setRawHeader("auth",globalToken);
+    request.setRawHeader("auth",tokenDroneNo);
     QNetworkReply* reply = manager.post(request,data);
     connect(reply,&QNetworkReply::readyRead, this, &CustomerData::readyReadDroneNo);
 
+}
+
+void CustomerData::logOutCustomer(QString location, QByteArray data)
+{
+    qInfo() <<"Requesting to Log Out...";
+    QNetworkRequest request = QNetworkRequest(QUrl(location));
+    request.setHeader(QNetworkRequest::ContentTypeHeader , "application/json");
+    request.setRawHeader("auth",tokenDroneNo);
+    QNetworkReply* reply = manager.post(request,data);
+    connect(reply,&QNetworkReply::readyRead, this, &CustomerData::readyReadDroneNo);
 }
 
 
@@ -107,7 +109,6 @@ void CustomerData::readyReadOTP()
     }
     this->token = m_token;
     this->authCode.clear();
-    globalToken = tokenDroneNo;
     successfulLogin = true;
     emit correctOTP();
 }
@@ -126,6 +127,24 @@ void CustomerData::readyReadDroneNo()
             emit droneRegistered();
         }
 
+}
+
+void CustomerData::readyReadLogOut()
+{
+    qInfo() <<"Ready Read Logout";
+    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+    QString replyStr = (QString)reply->readAll();
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(replyStr.toUtf8());
+    qInfo() << replyStr;
+    QJsonObject jsonObject = jsonResponse.object();
+    // response is parsed
+    if(jsonObject.find("error") == jsonObject.end()){
+        emit loggedOutFailed();
+    }
+    else{
+        emit loggedOutSuccessfully();
+        tokenDroneNo.clear();
+    }
 }
 
 void CustomerData::authenticationRequired(QNetworkReply *reply, QAuthenticator *authenticator)
@@ -168,11 +187,11 @@ void CustomerData::sslErrors(QNetworkReply *reply, const QList<QSslError> &error
     qInfo() << "sslErrors";
 }
 
-extern QObject *singletonProvider(QQmlEngine *engine, QJSEngine *scriptEngine)
-{
-    Q_UNUSED(engine)
-    Q_UNUSED(scriptEngine)
-    return getInstance();
-}
+//extern QObject *singletonProvider(QQmlEngine *engine, QJSEngine *scriptEngine)
+//{
+//    Q_UNUSED(engine)
+//    Q_UNUSED(scriptEngine)
+//    return getInstance();
+//}
 
 

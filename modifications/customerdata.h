@@ -29,6 +29,10 @@ signals:
     void wrongOTP();
     void droneRegistered();
     void droneNotRegistered();
+    //...............Edited..............//
+        void loggedOutSuccessfully();
+        void loggedOutFailed();
+    //...................................//
 
 
 public slots:
@@ -36,11 +40,13 @@ public slots:
     void postEmailPass(QString location, QByteArray data);
     void postOTP(QString location, QByteArray data);
     void postDroneNo(QString location, QByteArray data); // post droneNo to check whether it's registered or not
+    void logOutCustomer(QString location, QByteArray data);
 
 private slots:
     void readyRead();
     void readyReadOTP();
     void readyReadDroneNo();//getting droneNo validation reply
+    void readyReadLogOut();
 
     void authenticationRequired(QNetworkReply *reply, QAuthenticator *authenticator);
     void encrypted(QNetworkReply *reply);
@@ -55,7 +61,6 @@ private:
     QByteArray token;
     QByteArray tokenDroneNo;//storing 'auth': header session
     QByteArray tokenDroneReply;
-
 };
 
 extern QObject *singletonProvider(QQmlEngine *engine, QJSEngine *scriptEngine);

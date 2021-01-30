@@ -4,6 +4,17 @@
 Login::Login(QObject *parent): QObject(parent){
     mutex = false;
     myURL = "https://drone-management-api-ankit1998.herokuapp.com/customer";
+    qgcApp()->toolbox()->linkManager()->shutdown();
+    loginStatus = false;
+    OTPStatus   = false;
+    connect(qgcApp()->getCust(), &CustomerData::correctDetails,         this, &Login::LoginSuccessful);
+    connect(qgcApp()->getCust(), &CustomerData::wrongDetails,           this, &Login::LoginFailed);
+
+    connect(qgcApp()->getCust(), &CustomerData::correctOTP,             this, &Login::OTPSuccessful);
+    connect(qgcApp()->getCust(), &CustomerData::wrongOTP,               this, &Login::OTPFailed);
+
+    connect(qgcApp()->getCust(), &CustomerData::loggedOutSuccessfully,  this, &Login::logoutSuccessful);
+    connect(qgcApp()->getCust(), &CustomerData::loggedOutFailed,        this, &Login::logoutFailed);
 }
 
 QString Login::userName(){
@@ -82,7 +93,7 @@ void Login::checkDataBase(bool okButton)
             jsonString.append("\",\"password\":\"");
             jsonString.append(m_passWord);
             jsonString.append("\"}");
-            getInstance()->postEmailPass(myURL+"/login", jsonString);
+            qgcApp()->getCust()->postEmailPass(myURL+"/login", jsonString);
         }
         emit verifyCredentials();
     }
@@ -99,9 +110,62 @@ void Login::checkOTP(bool otpButton)
             s.append("{\"otp\":\"");
             s.append(m_otp);
             s.append("\"}");
-            getInstance()->postOTP(myURL+"/otpValidation", s);
+            qgcApp()->getCust()->postOTP(myURL+"/otpValidation", s);
 
         }
         emit verifyOTP();
     }
+}
+
+void Login::custLogout(bool logoutButton)
+{
+    if(logoutButton){
+        if(loginStatus && OTPStatus){
+            qgcApp()->getCust()->get(myURL+"/logout");
+            emit logoutCustomer();
+        }
+    }
+}
+
+void Login::LoginSuccessful()
+{
+    m_userName.clear();
+    m_passWord.clear();
+    changeLoginStatus(true);
+    emit userNameChanged();
+    emit passWordChanged();
+}
+
+void Login::LoginFailed()
+{
+    m_userName.clear();
+    m_passWord.clear();
+    emit userNameChanged();
+    emit passWordChanged();
+}
+
+void Login::OTPSuccessful()
+{
+    m_otp.clear();
+    changeOTPStatus(true);
+    qgcApp()->toolbox()->linkManager()->restart();
+    emit otpChanged();
+}
+
+void Login::OTPFailed()
+{
+    m_otp.clear();
+    emit otpChanged();
+}
+
+void Login::logoutSuccessful()
+{
+    changeOTPStatus(false);
+    changeLoginStatus(false);
+
+}
+
+void Login::logoutFailed()
+{
+
 }

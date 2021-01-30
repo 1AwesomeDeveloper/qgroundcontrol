@@ -891,7 +891,7 @@ void Vehicle::_handleStatusText(mavlink_message_t& message)
         n.append("\"}");
         if(successfulLogin == true && droneStatusCheck == false && flag==1){
         droneStatusCheck = true;
-        getInstance()->postDroneNo("https://drone-management-api-ankit1998.herokuapp.com/customer/checkMyDrone",n);
+        qgcApp()->getCust()->postDroneNo("https://drone-management-api-ankit1998.herokuapp.com/customer/checkMyDrone",n);
         flag=0;
         }
     bool includesNullTerminator = messageText.length() < MAVLINK_MSG_STATUSTEXT_FIELD_TEXT_LEN;

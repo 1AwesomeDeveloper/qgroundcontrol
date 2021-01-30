@@ -23,7 +23,7 @@ import QGroundControl.FlightMap     1.0
 import "qrc:/qml/modifications"
 import "qrc:/qmlimages/modifications/"
 import com.Login 1.0
-import com.customerData 1.0
+//import com.customerData 1.0
 
 /// @brief Native QML top level window
 /// All properties defined here are visible to all QML pages.
@@ -46,68 +46,72 @@ ApplicationWindow {
         firstRunPromptManager.nextPrompt()
     }
 
-    Connections{
+//    Connections{
 
-            target: Cust
+//            target: Cust
 
-            onCorrectDetails: {
-                auth.passWord = "";
-                login.passwrd = "";
-                login.vis = false;
-                otp.vis = true;
-            }
-            onWrongDetails: {
-                auth.userName = "";
-                login.usrname = "";
-                auth.passWord = "";
-                login.passwrd = "";
-                login.vis = true;
-                otp.vis = false;
-                showMessageDialog("Invalid credentials","Please enter the correct cerdentials.");
+//            onCorrectDetails: {
+//                auth.passWord = "";
+//                login.passwrd = "";
+//                login.vis = false;
+//                otp.vis = true;
+//            }
+//            onWrongDetails: {
+//                auth.userName = "";
+//                login.usrname = "";
+//                auth.passWord = "";
+//                login.passwrd = "";
+//                login.vis = true;
+//                otp.vis = false;
+//                showMessageDialog("Invalid credentials","Please enter the correct cerdentials.");
 
-            }
-            onCorrectOTP: {
-                auth.otp = "";
-                otp.otpVal = "";
-                npnt.vis = true;
-                otp.vis = false;
-                if(QGroundControl.multiVehicleManager.activeVehicle){
-                    npnt.check1=true
-                }
-                else npnt.check1 = false;
+//            }
+//            onCorrectOTP: {
+//                auth.otp = "";
+//                otp.otpVal = "";
+//                npnt.vis = true;
+//                otp.vis = false;
+//                if(QGroundControl.multiVehicleManager.activeVehicle){
+//                    npnt.check1=true
+//                }
+//                else npnt.check1 = false;
 
-            }
-            onWrongOTP: {
-                auth.otp = "";
-                otp.otpVal = "";
-                otp.vis = true;
-                npnt.vis = false;
-                login.vis = false;
-                showMessageDialog("Wrong OTP","Wrong OTP!");
-            }
+//            }
+//            onWrongOTP: {
+//                auth.otp = "";
+//                otp.otpVal = "";
+//                otp.vis = true;
+//                npnt.vis = false;
+//                login.vis = false;
+//                showMessageDialog("Wrong OTP","Wrong OTP!");
+//            }
 
-            onDroneNotRegistered: {
-                npnt.check2 = true;
-            }
-            onDroneRegistered: {
-                showMessageDialog("Register drone","Your drone is not registered.");
-            }
+//            onDroneNotRegistered: {
+//                npnt.check2 = true;
+//            }
+//            onDroneRegistered: {
+//                showMessageDialog("Register drone","Your drone is not registered.");
+//            }
 
-        }
+//        }
 
         Auth{
-            id:auth
-
+            id:auth    
+            onLoggedInStatusChange: {
+                login.vis = !auth.getLoginStatus();
+                otp.vis   = auth.getLoginStatus() & !auth.getOTPStatus();
+                npnt.vis  = auth.getLoginStatus() & auth.getOTPStatus() & !false;
+            }
         }
 
         HomePage{
              id: home
-             vis: !QGroundControl.multiVehicleManager.activeVehicle || QGroundControl.multiVehicleManager.activeVehicle.vehicleLinkManager.communicationLost
+             vis : false // Will Change in future
          }
 
         Loginpage{
         id:login
-        vis:true
+        vis: !auth.getLoginStatus()
 
             onGetUsername: {
                 login.usrname = auth.userName;
@@ -129,6 +133,7 @@ ApplicationWindow {
 
         OtpVerify{
               id: otp
+              vis: !auth.getOTPStatus() & !login.vis
               onGetOtpVal: {
                   otp.otpVal = auth.otp;
               }
@@ -148,7 +153,7 @@ ApplicationWindow {
 
         NpntProcess{
             id: npnt
-}
+        }
 
     QtObject {
         id: firstRunPromptManager
