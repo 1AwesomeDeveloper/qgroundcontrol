@@ -6,21 +6,13 @@
 #include "MockLink.h"
 #include "FTPManager.h"
 
-bool successfulLogin = false;
-bool droneStatusCheck = false;
-static QByteArray globalToken; // Global variable for token outside the class
 
 // Singleton
-static CustomerData* customer = nullptr;
-CustomerData*
-getInstance()
-{
-    if(!customer)
-        customer = new CustomerData();
-    return customer;
-}
+
 CustomerData::CustomerData(QObject* parent): QObject(parent)
 {
+    loggedIN = false;
+    droneStatusCheck = false;
 }
 
 void CustomerData::get(QString location)
@@ -56,10 +48,30 @@ void CustomerData::postDroneNo(QString location, QByteArray data)
     qInfo() <<"Posting drone number to Server...";
     QNetworkRequest request = QNetworkRequest(QUrl(location));
     request.setHeader(QNetworkRequest::ContentTypeHeader , "application/json");
-    request.setRawHeader("auth",globalToken);
+    request.setRawHeader("auth",tokenDroneNo);
     QNetworkReply* reply = manager.post(request,data);
     connect(reply,&QNetworkReply::readyRead, this, &CustomerData::readyReadDroneNo);
 
+}
+
+void CustomerData::logOutCustomer(QString location, QByteArray data)
+{
+    qInfo() <<"Requesting to Log Out...";
+    QNetworkRequest request = QNetworkRequest(QUrl(location));
+    request.setHeader(QNetworkRequest::ContentTypeHeader , "application/json");
+    request.setRawHeader("auth",tokenDroneNo);
+    QNetworkReply* reply = manager.post(request,data);
+    connect(reply,&QNetworkReply::readyRead, this, &CustomerData::readyReadDroneNo);
+}
+
+void CustomerData::clearData()
+{
+    tokenDroneNo.clear();
+    loggedIN = false;
+    droneStatusCheck = false;
+    authCode.clear();
+    token.clear();
+    tokenDroneReply.clear();
 }
 
 
@@ -71,6 +83,10 @@ void CustomerData::readyRead()
     qInfo() << replyArray;
     int idx = replyArray.lastIndexOf("loginToken");
     int idx1 = replyArray.lastIndexOf("error");
+    if(loggedIN){
+        qInfo() << "Customer already logged in";
+        return;
+    }
     if(idx == -1 || idx1 != -1){
         emit wrongDetails();
         return;
@@ -95,6 +111,10 @@ void CustomerData::readyReadOTP()
         emit wrongOTP();
         return;
     }
+    if(loggedIN){
+        qInfo() << "Customer already logged in";
+        return;
+    }
     idx1 += 14;
     for(int i=idx1; i<replyArray.size()-1; i++){
         m_token.append(replyArray[i]);
@@ -107,8 +127,7 @@ void CustomerData::readyReadOTP()
     }
     this->token = m_token;
     this->authCode.clear();
-    globalToken = tokenDroneNo;
-    successfulLogin = true;
+    loggedIN = true;
     emit correctOTP();
 }
 
@@ -123,56 +142,36 @@ void CustomerData::readyReadDroneNo()
             emit droneNotRegistered();
         }
     if(replyArray.contains("modal")){
+            droneStatusCheck = true;
             emit droneRegistered();
         }
 
 }
 
-void CustomerData::authenticationRequired(QNetworkReply *reply, QAuthenticator *authenticator)
+void CustomerData::readyReadLogOut()
 {
-    Q_UNUSED(reply)
-    Q_UNUSED(authenticator)
-    qInfo() << "authenticationRequired";
+    qInfo() <<"Ready Read Logout";
+    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+    QString replyStr = (QString)reply->readAll();
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(replyStr.toUtf8());
+    qInfo() << replyStr;
+    QJsonObject jsonObject = jsonResponse.object();
+    // response is parsed
+    if(jsonObject.find("error") == jsonObject.end()){
+        emit loggedOutFailed();
+    }
+    else{
+        emit loggedOutSuccessfully();
+        tokenDroneNo.clear();
+    }
 }
 
-void CustomerData::encrypted(QNetworkReply *reply)
-{
-    Q_UNUSED(reply)
-    qInfo() << "encrypted";
-}
 
-void CustomerData::finished(QNetworkReply *reply)
-{
-    Q_UNUSED(reply)
-    qInfo() << "finished";
-}
-
-void CustomerData::preSharedKeyAuthenticationRequired(QNetworkReply *reply, QSslPreSharedKeyAuthenticator *authenticator)
-{
-    Q_UNUSED(reply)
-    Q_UNUSED(authenticator)
-    qInfo() << "preSharedKeyAuthenticationRequired";
-}
-
-void CustomerData::proxyAuthenticationRequired(const QNetworkProxy &proxy, QAuthenticator *authenticator)
-{
-    Q_UNUSED(proxy)
-    Q_UNUSED(authenticator)
-    qInfo() << "proxyAuthenticationRequired";
-}
-
-void CustomerData::sslErrors(QNetworkReply *reply, const QList<QSslError> &errors)
-{
-    Q_UNUSED(reply)
-    Q_UNUSED(errors)
-    qInfo() << "sslErrors";
-}
-
-extern QObject *singletonProvider(QQmlEngine *engine, QJSEngine *scriptEngine)
-{
-    Q_UNUSED(engine)
-    Q_UNUSED(scriptEngine)
-    return getInstance();
-}
+//extern QObject *singletonProvider(QQmlEngine *engine, QJSEngine *scriptEngine)
+//{
+//    Q_UNUSED(engine)
+//    Q_UNUSED(scriptEngine)
+//    return getInstance();
+//}
 
 
