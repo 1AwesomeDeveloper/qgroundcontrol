@@ -21,6 +21,8 @@ class CustomerData: public QObject
 
 public:
        explicit CustomerData(QObject* parent=nullptr);
+    bool loggedIn(){return loggedIN;}
+    bool DroneStatusCheck(){return droneStatusCheck;}
 
 signals:
     void correctDetails();
@@ -41,6 +43,7 @@ public slots:
     void postOTP(QString location, QByteArray data);
     void postDroneNo(QString location, QByteArray data); // post droneNo to check whether it's registered or not
     void logOutCustomer(QString location, QByteArray data);
+    void clearData();
 
 private slots:
     void readyRead();
@@ -61,10 +64,10 @@ private:
     QByteArray token;
     QByteArray tokenDroneNo;//storing 'auth': header session
     QByteArray tokenDroneReply;
+    bool loggedIN;
+    bool droneStatusCheck;
 };
 
 extern QObject *singletonProvider(QQmlEngine *engine, QJSEngine *scriptEngine);
 extern CustomerData *getInstance();
-extern bool successfulLogin;
-extern bool droneStatusCheck;
 #endif // CUSTOMERDATA_H

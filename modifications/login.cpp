@@ -15,6 +15,9 @@ Login::Login(QObject *parent): QObject(parent){
 
     connect(qgcApp()->getCust(), &CustomerData::loggedOutSuccessfully,  this, &Login::logoutSuccessful);
     connect(qgcApp()->getCust(), &CustomerData::loggedOutFailed,        this, &Login::logoutFailed);
+
+    connect(this, &Login::logoutCustomer, qgcApp()->getCust(), &CustomerData::clearData);
+
 }
 
 QString Login::userName(){
@@ -162,7 +165,7 @@ void Login::logoutSuccessful()
 {
     changeOTPStatus(false);
     changeLoginStatus(false);
-
+    emit logoutCustomer();
 }
 
 void Login::logoutFailed()

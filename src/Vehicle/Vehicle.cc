@@ -65,8 +65,6 @@ QGC_LOGGING_CATEGORY(VehicleLog, "VehicleLog")
 #define DEFAULT_LAT  38.965767f
 #define DEFAULT_LON -120.083923f
 
-extern bool successfulLogin;
-extern bool droneStatusCheck;
 static QString PixhawkID;
 static int flag=0;
 
@@ -889,7 +887,7 @@ void Vehicle::_handleStatusText(mavlink_message_t& message)
         n.append("{\"flightControllerNumber\":\"");
         n.append(PixhawkID);
         n.append("\"}");
-        if(successfulLogin == true && droneStatusCheck == false && flag==1){
+        if(qgcApp()->getCust()->loggedIn() && !qgcApp()->getCust()->DroneStatusCheck() && flag==1){
         droneStatusCheck = true;
         qgcApp()->getCust()->postDroneNo("https://drone-management-api-ankit1998.herokuapp.com/customer/checkMyDrone",n);
         flag=0;
