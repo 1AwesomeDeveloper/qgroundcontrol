@@ -279,6 +279,7 @@
         <file>modifications/Loginpage.qml</file>
         <file>modifications/NpntProcess.qml</file>
         <file>modifications/OtpVerify.qml</file>
+        <file>modifications/PilotLogin.qml</file>
     </qresource>
     <qresource prefix="/FirstRunPromptDialogs">
         <file alias="UnitsFirstRunPrompt.qml">src/FirstRunPromptDialogs/UnitsFirstRunPrompt.qml</file>
