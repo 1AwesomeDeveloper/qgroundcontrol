@@ -15,7 +15,7 @@ Rectangle{
     property bool vis: false
     anchors.fill: parent
     color: "grey"
-    visible: myrect.vis &&_activeVehicle&&!_communicationLost
+    visible: myrect.vis
     z:1
 
 Rectangle{

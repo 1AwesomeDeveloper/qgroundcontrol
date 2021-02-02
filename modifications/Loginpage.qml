@@ -19,7 +19,7 @@ Rectangle{
         signal changePassword(string b)
         signal loginButton()
         property bool vis:true
-        visible: myRect.vis && _activeVehicle && !_communicationLost
+        visible: myRect.vis
 
 Rectangle{
            id: rect1
