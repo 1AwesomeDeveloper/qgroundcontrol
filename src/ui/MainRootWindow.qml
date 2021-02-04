@@ -20,6 +20,11 @@ import QGroundControl.ScreenTools   1.0
 import QGroundControl.FlightDisplay 1.0
 import QGroundControl.FlightMap     1.0
 
+import "qrc:/qml/modifications"
+import "qrc:/qmlimages/modifications/"
+import com.Login 1.0
+//import com.customerData 1.0
+
 /// @brief Native QML top level window
 /// All properties defined here are visible to all QML pages.
 ApplicationWindow {
@@ -40,6 +45,115 @@ ApplicationWindow {
         // Start the sequence of first run prompt(s)
         firstRunPromptManager.nextPrompt()
     }
+
+//    Connections{
+
+//            target: Cust
+
+//            onCorrectDetails: {
+//                auth.passWord = "";
+//                login.passwrd = "";
+//                login.vis = false;
+//                otp.vis = true;
+//            }
+//            onWrongDetails: {
+//                auth.userName = "";
+//                login.usrname = "";
+//                auth.passWord = "";
+//                login.passwrd = "";
+//                login.vis = true;
+//                otp.vis = false;
+//                showMessageDialog("Invalid credentials","Please enter the correct cerdentials.");
+
+//            }
+//            onCorrectOTP: {
+//                auth.otp = "";
+//                otp.otpVal = "";
+//                npnt.vis = true;
+//                otp.vis = false;
+//                if(QGroundControl.multiVehicleManager.activeVehicle){
+//                    npnt.check1=true
+//                }
+//                else npnt.check1 = false;
+
+//            }
+//            onWrongOTP: {
+//                auth.otp = "";
+//                otp.otpVal = "";
+//                otp.vis = true;
+//                npnt.vis = false;
+//                login.vis = false;
+//                showMessageDialog("Wrong OTP","Wrong OTP!");
+//            }
+
+//            onDroneNotRegistered: {
+//                npnt.check2 = true;
+//            }
+//            onDroneRegistered: {
+//                showMessageDialog("Register drone","Your drone is not registered.");
+//            }
+
+//        }
+
+        Auth{
+            id:auth    
+            onLoggedInStatusChange: {
+                login.vis = !auth.getLoginStatus();
+                otp.vis   = auth.getLoginStatus() & !auth.getOTPStatus();
+                npnt.vis  = auth.getLoginStatus() & auth.getOTPStatus() & !false;
+            }
+        }
+
+        HomePage{
+             id: home
+             vis : false // Will Change in future
+         }
+
+        Loginpage{
+        id:login
+        vis: !auth.getLoginStatus()
+
+            onGetUsername: {
+                login.usrname = auth.userName;
+            }
+            onGetPassword: {
+                login.passwrd = auth.passWord;
+            }
+            onChangeUsername:{
+                auth.userName = login.usrname;
+            }
+            onChangePassword:{
+                auth.passWord = login.passwrd;
+            }
+            onLoginButton:{
+                auth.okButton = true;
+                mainWindow.pushPreventViewSwitch()
+            }
+        }
+
+        OtpVerify{
+              id: otp
+              vis: !auth.getOTPStatus() & !login.vis
+              onGetOtpVal: {
+                  otp.otpVal = auth.otp;
+              }
+              onSetOtp: {
+                  auth.otp = otp.otpVal;
+              }
+              onVerifyButton: {
+                  auth.otpButton = true;
+              }
+              onBackButtonClicked: {
+                  login.vis = true;
+                  login.usrname=""
+                  login.passwrd=""
+                  vis = false;
+              }
+        }
+
+        NpntProcess{
+            id: npnt
+        }
 
     QtObject {
         id: firstRunPromptManager

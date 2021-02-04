@@ -14,6 +14,8 @@
 
 #include <Eigen/Eigen>
 
+#include "customerdata.h"
+
 #include "Vehicle.h"
 #include "MAVLinkProtocol.h"
 #include "FirmwarePluginManager.h"
@@ -63,6 +65,9 @@ QGC_LOGGING_CATEGORY(VehicleLog, "VehicleLog")
 #define DEFAULT_LAT  38.965767f
 #define DEFAULT_LON -120.083923f
 
+static QString PixhawkID;
+static int flag=0;
+
 const QString guided_mode_not_supported_by_vehicle = QObject::tr("Guided mode not supported by Vehicle.");
 
 const char* Vehicle::_settingsGroup =               "Vehicle%1";        // %1 replaced with mavlink system id
@@ -94,10 +99,13 @@ const char* Vehicle::_windFactGroupName =               "wind";
 const char* Vehicle::_vibrationFactGroupName =          "vibration";
 const char* Vehicle::_temperatureFactGroupName =        "temperature";
 const char* Vehicle::_clockFactGroupName =              "clock";
+const char* Vehicle::_setpointFactGroupName =           "setpoint";
 const char* Vehicle::_distanceSensorFactGroupName =     "distanceSensor";
 const char* Vehicle::_escStatusFactGroupName =          "escStatus";
 const char* Vehicle::_estimatorStatusFactGroupName =    "estimatorStatus";
 const char* Vehicle::_terrainFactGroupName =            "terrain";
+
+const QList<int> Vehicle::_pidTuningMessages = {MAVLINK_MSG_ID_ATTITUDE_QUATERNION, MAVLINK_MSG_ID_ATTITUDE_TARGET};
 
 // Standard connected vehicle
 Vehicle::Vehicle(LinkInterface*             link,
@@ -144,6 +152,7 @@ Vehicle::Vehicle(LinkInterface*             link,
     , _vibrationFactGroup           (this)
     , _temperatureFactGroup         (this)
     , _clockFactGroup               (this)
+    , _setpointFactGroup            (this)
     , _distanceSensorFactGroup      (this)
     , _escStatusFactGroup           (this)
     , _estimatorStatusFactGroup     (this)
@@ -192,8 +201,6 @@ Vehicle::Vehicle(LinkInterface*             link,
         }
     }
 #endif
-
-    _pidTuningMessages << MAVLINK_MSG_ID_ATTITUDE << MAVLINK_MSG_ID_ATTITUDE_TARGET;
 
     _autopilotPlugin = _firmwarePlugin->autopilotPlugin(this);
     _autopilotPlugin->setParent(this);
@@ -400,6 +407,7 @@ void Vehicle::_commonInit()
     _addFactGroup(&_vibrationFactGroup,         _vibrationFactGroupName);
     _addFactGroup(&_temperatureFactGroup,       _temperatureFactGroupName);
     _addFactGroup(&_clockFactGroup,             _clockFactGroupName);
+    _addFactGroup(&_setpointFactGroup,          _setpointFactGroupName);
     _addFactGroup(&_distanceSensorFactGroup,    _distanceSensorFactGroupName);
     _addFactGroup(&_escStatusFactGroup,         _escStatusFactGroupName);
     _addFactGroup(&_estimatorStatusFactGroup,   _estimatorStatusFactGroupName);
@@ -437,8 +445,6 @@ void Vehicle::_commonInit()
         }
     }
 #endif
-
-    _pidTuningMessages << MAVLINK_MSG_ID_ATTITUDE << MAVLINK_MSG_ID_ATTITUDE_TARGET;
 }
 
 Vehicle::~Vehicle()
@@ -858,6 +864,7 @@ void Vehicle::_handleStatusText(mavlink_message_t& message)
 {
     QByteArray  b;
     QString     messageText;
+    QString     droneNumber,checkdroneNumber;
 
     mavlink_statustext_t statustext;
     mavlink_msg_statustext_decode(&message, &statustext);
@@ -868,6 +875,21 @@ void Vehicle::_handleStatusText(mavlink_message_t& message)
     strncpy(b.data(), statustext.text, MAVLINK_MSG_STATUSTEXT_FIELD_TEXT_LEN);
     b[b.length()-1] = '\0';
     messageText = QString(b);
+
+    droneNumber = statustext.text;
+    if(droneNumber.contains("PX4v") || droneNumber.contains("Pixhawk") || droneNumber.contains("fmuv3")){
+        flag=1;
+        PixhawkID = droneNumber;
+        qInfo()  << droneNumber;
+        }
+        QByteArray n;
+        n.append("{\"flightControllerNumber\":\"");
+        n.append(PixhawkID);
+        n.append("\"}");
+        if(qgcApp()->getCust()->loggedIn() && !qgcApp()->getCust()->DroneStatusCheck() && flag==1){
+        qgcApp()->getCust()->postDroneNo("https://drone-management-api-ankit1998.herokuapp.com/customer/checkMyDrone",n);
+        flag=0;
+        }
     bool includesNullTerminator = messageText.length() < MAVLINK_MSG_STATUSTEXT_FIELD_TEXT_LEN;
 
     if (_chunkedStatusTextInfoMap.contains(compId) && _chunkedStatusTextInfoMap[compId].chunkId != statustext.id) {
@@ -2660,11 +2682,10 @@ void Vehicle::_sendMavCommandWorker(bool commandInt, bool requestMessage, bool s
         return;
     }
 
-    WeakLinkInterfacePtr weakLink = vehicleLinkManager()->primaryLink();
+    SharedLinkInterfacePtr sharedLink = vehicleLinkManager()->primaryLink().lock();
 
-    if (!weakLink.expired()) {
+    if (sharedLink) {
         MavCommandListEntry_t   entry;
-        SharedLinkInterfacePtr  sharedLink = weakLink.lock();
 
         entry.useCommandInt     = commandInt;
         entry.targetCompId      = targetCompId;
@@ -2818,6 +2839,7 @@ void Vehicle::_handleCommandAck(mavlink_message_t& message)
 #endif
 
     int entryIndex = _findMavCommandListEntryIndex(message.compid, static_cast<MAV_CMD>(ack.command));
+    bool commandInList = false;
     if (entryIndex != -1) {
         const MavCommandListEntry_t& commandEntry = _mavCommandList[entryIndex];
         if (commandEntry.command == ack.command) {
@@ -2867,11 +2889,26 @@ void Vehicle::_handleCommandAck(mavlink_message_t& message)
             }
 
             _mavCommandList.removeAt(entryIndex);
-            return;
+            commandInList = true;
         }
     }
 
-    qCDebug(VehicleLog) << "_handleCommandAck Ack not in list" << rawCommandName;
+    if (!commandInList) {
+        qCDebug(VehicleLog) << "_handleCommandAck Ack not in list" << rawCommandName;
+    }
+
+    // advance PID tuning setup/teardown
+    if (ack.command == MAV_CMD_SET_MESSAGE_INTERVAL && _pidTuningNextAdjustIndex >= 0) {
+        _pidTuningAdjustRates();
+    }
+    if (ack.command == MAV_CMD_GET_MESSAGE_INTERVAL && _pidTuningWaitingForRates) {
+        if (_pidTuningMessageRatesUsecs.count() < _pidTuningMessages.count()) {
+            sendMavCommand(defaultComponentId(),
+                    MAV_CMD_GET_MESSAGE_INTERVAL,
+                    true,                        // show error
+                    _pidTuningMessages[_pidTuningMessageRatesUsecs.count()]);
+        }
+    }
 }
 
 void Vehicle::_waitForMavlinkMessage(WaitForMavlinkMessageResultHandler resultHandler, void* resultHandlerData, int messageId, int timeoutMsecs)
@@ -3542,7 +3579,8 @@ void Vehicle::_handleMessageInterval(const mavlink_message_t& message)
         if (_pidTuningMessageRatesUsecs.count() == _pidTuningMessages.count()) {
             // We have back all the rates we requested
             _pidTuningWaitingForRates = false;
-            _pidTuningAdjustRates(true);
+            _pidTuningNextAdjustIndex = 0;
+            _pidTuningAdjustRates();
         }
     }
 }
@@ -3555,12 +3593,10 @@ void Vehicle::setPIDTuningTelemetryMode(bool pidTuning)
             _pidTuningTelemetryMode = true;
             _pidTuningWaitingForRates = true;
             _pidTuningMessageRatesUsecs.clear();
-            for (int telemetry: _pidTuningMessages) {
-                sendMavCommand(defaultComponentId(),
-                               MAV_CMD_GET_MESSAGE_INTERVAL,
-                               true,                        // show error
-                               telemetry);
-            }
+            sendMavCommand(defaultComponentId(),
+                    MAV_CMD_GET_MESSAGE_INTERVAL,
+                    true,                        // show error
+                    _pidTuningMessages[0]);
         }
     } else {
         if (_pidTuningTelemetryMode) {
@@ -3569,29 +3605,37 @@ void Vehicle::setPIDTuningTelemetryMode(bool pidTuning)
                 // We never finished waiting for previous rates
                 _pidTuningWaitingForRates = false;
             } else {
-                _pidTuningAdjustRates(false);
+                _pidTuningNextAdjustIndex = 0;
+                _pidTuningAdjustRates();
             }
         }
     }
 }
 
-void Vehicle::_pidTuningAdjustRates(bool setRatesForTuning)
+void Vehicle::_pidTuningAdjustRates()
 {
-    int requestedRate = (int)(1000000.0 / 30.0); // 30 Hz in usecs
+    int requestedRate = (int)(1000000.0 / 100.0); // 100 Hz in usecs (better set this a bit higher than actually needed,
+    // to give it more priority in case of exceeing link bandwidth)
 
-    for (int telemetry: _pidTuningMessages) {
+    if (_pidTuningNextAdjustIndex >= _pidTuningMessages.size()) {
+        _pidTuningNextAdjustIndex = -1;
+        return;
+    }
+    int telemetry = _pidTuningMessages[_pidTuningNextAdjustIndex];
 
-        if (requestedRate < _pidTuningMessageRatesUsecs[telemetry]) {
-            sendMavCommand(defaultComponentId(),
-                           MAV_CMD_SET_MESSAGE_INTERVAL,
-                           true,                        // show error
-                           telemetry,
-                           setRatesForTuning ? requestedRate : _pidTuningMessageRatesUsecs[telemetry]);
-        }
+    if (requestedRate < _pidTuningMessageRatesUsecs[telemetry] || _pidTuningMessageRatesUsecs[telemetry] == 0) {
+        sendMavCommand(defaultComponentId(),
+                MAV_CMD_SET_MESSAGE_INTERVAL,
+                true,                        // show error
+                telemetry,
+                _pidTuningTelemetryMode ? requestedRate : _pidTuningMessageRatesUsecs[telemetry]);
     }
 
-    setLiveUpdates(setRatesForTuning);
-    _setpointFactGroup.setLiveUpdates(setRatesForTuning);
+    if (_pidTuningNextAdjustIndex == 0) {
+        setLiveUpdates(_pidTuningTelemetryMode);
+        _setpointFactGroup.setLiveUpdates(_pidTuningTelemetryMode);
+    }
+    ++_pidTuningNextAdjustIndex;
 }
 
 void Vehicle::_initializeCsv()
