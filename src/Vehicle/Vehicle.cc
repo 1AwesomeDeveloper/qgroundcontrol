@@ -879,7 +879,6 @@ void Vehicle::_handleStatusText(mavlink_message_t& message)
     droneNumber = statustext.text;
     if(droneNumber.contains("PX4v") || droneNumber.contains("Pixhawk") || droneNumber.contains("fmuv3")){
         flag=1;
-        droneStatusCheck = false;
         PixhawkID = droneNumber;
         qInfo()  << droneNumber;
         }
@@ -888,7 +887,6 @@ void Vehicle::_handleStatusText(mavlink_message_t& message)
         n.append(PixhawkID);
         n.append("\"}");
         if(qgcApp()->getCust()->loggedIn() && !qgcApp()->getCust()->DroneStatusCheck() && flag==1){
-        droneStatusCheck = true;
         qgcApp()->getCust()->postDroneNo("https://drone-management-api-ankit1998.herokuapp.com/customer/checkMyDrone",n);
         flag=0;
         }

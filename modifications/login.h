@@ -29,6 +29,8 @@ public:
     bool okButton();
     bool otpButton();
 
+    bool logoutButton(){return false;}
+
     void setUserName(const QString &userName);
     void setOTP(const QString &otp);
     void setPassWord(const QString &passWord);

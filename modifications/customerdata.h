@@ -35,7 +35,8 @@ signals:
         void loggedOutSuccessfully();
         void loggedOutFailed();
     //...................................//
-
+    void getFirmwareInfoFailed();
+    void getFirmwareInfoSuccessfull();
 
 public slots:
     void get(QString location);
@@ -44,19 +45,21 @@ public slots:
     void postDroneNo(QString location, QByteArray data); // post droneNo to check whether it's registered or not
     void logOutCustomer(QString location, QByteArray data);
     void clearData();
+    void getLatestFirmwareInfo(QString location);
 
 private slots:
     void readyRead();
     void readyReadOTP();
     void readyReadDroneNo();//getting droneNo validation reply
     void readyReadLogOut();
+    void readyReadGetLatestFirmwareInfo();
 
-    void authenticationRequired(QNetworkReply *reply, QAuthenticator *authenticator);
-    void encrypted(QNetworkReply *reply);
-    void finished(QNetworkReply *reply);
-    void preSharedKeyAuthenticationRequired(QNetworkReply *reply, QSslPreSharedKeyAuthenticator *authenticator);
-    void proxyAuthenticationRequired(const QNetworkProxy &proxy, QAuthenticator *authenticator);
-    void sslErrors(QNetworkReply *reply, const QList<QSslError> &errors);
+//    void authenticationRequired(QNetworkReply *reply, QAuthenticator *authenticator);
+//    void encrypted(QNetworkReply *reply);
+//    void finished(QNetworkReply *reply);
+//    void preSharedKeyAuthenticationRequired(QNetworkReply *reply, QSslPreSharedKeyAuthenticator *authenticator);
+//    void proxyAuthenticationRequired(const QNetworkProxy &proxy, QAuthenticator *authenticator);
+//    void sslErrors(QNetworkReply *reply, const QList<QSslError> &errors);
 
 private:
     QNetworkAccessManager manager;

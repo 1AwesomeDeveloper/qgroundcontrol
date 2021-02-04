@@ -74,6 +74,21 @@ void CustomerData::clearData()
     tokenDroneReply.clear();
 }
 
+void CustomerData::getLatestFirmwareInfo(QString location)
+{
+    qInfo() <<"Requesting latest firmware...";
+    QUrlQuery params;
+        params.addQueryItem("token", tokenDroneNo);
+    QUrl url(location);
+    url.setQuery(params.query());
+    QNetworkRequest request = QNetworkRequest(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader , "application/json");
+    //request.setRawHeader("auth",tokenDroneNo);
+
+    QNetworkReply* reply = manager.get(request);
+    connect(reply,&QNetworkReply::readyRead, this, &CustomerData::readyReadGetLatestFirmwareInfo);
+}
+
 
 void CustomerData::readyRead()
 {
@@ -163,6 +178,24 @@ void CustomerData::readyReadLogOut()
     else{
         emit loggedOutSuccessfully();
         tokenDroneNo.clear();
+    }
+}
+
+void CustomerData::readyReadGetLatestFirmwareInfo()
+{
+    qInfo() <<"Ready Read Firmware Info";
+    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+    QString replyStr = (QString)reply->readAll();
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(replyStr.toUtf8());
+    qInfo() << replyStr;
+    QJsonObject jsonObject = jsonResponse.object();
+    // response is parsed
+    if(jsonObject.find("error") == jsonObject.end()){
+        emit getFirmwareInfoFailed();
+    }
+    else{
+        //qgcApp()->toolbox()->multiVehicleManager()->activeVehicle()->versionCompare();
+        emit getFirmwareInfoSuccessfull();
     }
 }
 
