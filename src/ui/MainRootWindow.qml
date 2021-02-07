@@ -23,6 +23,7 @@ import QGroundControl.FlightMap     1.0
 import "qrc:/qml/modifications"
 import "qrc:/qmlimages/modifications/"
 import com.Login 1.0
+import com.NPNT_CONTROL 1.0
 //import com.customerData 1.0
 
 /// @brief Native QML top level window
@@ -153,6 +154,7 @@ ApplicationWindow {
 
         NpntProcess{
             id: npnt
+            vis: false
         }
 
     QtObject {

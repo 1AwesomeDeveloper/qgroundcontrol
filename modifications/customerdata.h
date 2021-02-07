@@ -23,6 +23,7 @@ public:
        explicit CustomerData(QObject* parent=nullptr);
     bool loggedIn(){return loggedIN;}
     bool DroneStatusCheck(){return droneStatusCheck;}
+    bool vehicleIDChanged(QString vehicleID);
 
 signals:
     void correctDetails();
@@ -35,30 +36,43 @@ signals:
         void loggedOutSuccessfully();
         void loggedOutFailed();
     //...................................//
+    void getFirmwareInfoFailed();
+    void getFirmwareInfoSuccessfull();
 
+    void keyUploadFailed();
+    void keyUploadSuccessful();
 
 public slots:
     void get(QString location);
     void postEmailPass(QString location, QByteArray data);
     void postOTP(QString location, QByteArray data);
-    void postDroneNo(QString location, QByteArray data); // post droneNo to check whether it's registered or not
+    void postDroneNo(QString location); // post droneNo to check whether it's registered or not
     void logOutCustomer(QString location, QByteArray data);
     void clearData();
+    void getLatestFirmwareInfo(QString location);
+    void uploadKey(QString location);
 
 private slots:
     void readyRead();
     void readyReadOTP();
     void readyReadDroneNo();//getting droneNo validation reply
     void readyReadLogOut();
+    void readyReadGetLatestFirmwareInfo();
+    void readyReadUploadKey();
 
-    void authenticationRequired(QNetworkReply *reply, QAuthenticator *authenticator);
-    void encrypted(QNetworkReply *reply);
-    void finished(QNetworkReply *reply);
-    void preSharedKeyAuthenticationRequired(QNetworkReply *reply, QSslPreSharedKeyAuthenticator *authenticator);
-    void proxyAuthenticationRequired(const QNetworkProxy &proxy, QAuthenticator *authenticator);
-    void sslErrors(QNetworkReply *reply, const QList<QSslError> &errors);
+//    void authenticationRequired(QNetworkReply *reply, QAuthenticator *authenticator);
+//    void encrypted(QNetworkReply *reply);
+//    void finished(QNetworkReply *reply);
+//    void preSharedKeyAuthenticationRequired(QNetworkReply *reply, QSslPreSharedKeyAuthenticator *authenticator);
+//    void proxyAuthenticationRequired(const QNetworkProxy &proxy, QAuthenticator *authenticator);
+//    void sslErrors(QNetworkReply *reply, const QList<QSslError> &errors);
 
 private:
+    struct customerVehicleData
+    {
+        QString vehicleSerialId;
+    } vehicleData;
+
     QNetworkAccessManager manager;
     QByteArray authCode;
     QByteArray token;
