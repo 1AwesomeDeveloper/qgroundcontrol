@@ -886,10 +886,17 @@ void Vehicle::_handleStatusText(mavlink_message_t& message)
         n.append("{\"flightControllerNumber\":\"");
         n.append(PixhawkID);
         n.append("\"}");
-        if(qgcApp()->getCust()->loggedIn() && !qgcApp()->getCust()->DroneStatusCheck() && flag==1){
-        qgcApp()->getCust()->postDroneNo("https://drone-management-api-ankit1998.herokuapp.com/customer/checkMyDrone",n);
-        flag=0;
+
+        if(qgcApp()->getCust()->vehicleIDChanged(PixhawkID)){
+            //UNDER CONSTRUCTION
+            // emit signal?
+            //
         }
+//        if(qgcApp()->getCust()->loggedIn() && !qgcApp()->getCust()->DroneStatusCheck() && flag==1){
+
+//            //qgcApp()->getCust()->postDroneNo("https://drone-management-api-ankit1998.herokuapp.com/customer/checkMyDrone",n);
+//            flag=0;
+//        }
     bool includesNullTerminator = messageText.length() < MAVLINK_MSG_STATUSTEXT_FIELD_TEXT_LEN;
 
     if (_chunkedStatusTextInfoMap.contains(compId) && _chunkedStatusTextInfoMap[compId].chunkId != statustext.id) {

@@ -15,6 +15,21 @@ CustomerData::CustomerData(QObject* parent): QObject(parent)
     droneStatusCheck = false;
 }
 
+bool CustomerData::vehicleIDChanged(QString vehicleID)
+{
+    if(vehicleData.vehicleSerialId.size() == 0){
+        //new key detected
+        vehicleData.vehicleSerialId = vehicleID;
+        return false;
+    }
+    if(!DroneStatusCheck()){
+        vehicleData.vehicleSerialId = vehicleID;
+        return false;
+    }
+    if(vehicleID == vehicleData.vehicleSerialId) return false;
+    return true;
+}
+
 void CustomerData::get(QString location)
 {
     qInfo() << "Getting from Server.....";
@@ -25,6 +40,10 @@ void CustomerData::get(QString location)
 void CustomerData::postEmailPass(QString location, QByteArray data)
 {
 
+    if(loggedIN){
+        qInfo() << "Customer already logged in";
+        return;
+    }
     qInfo() << "Posting to Server.....";
     QNetworkRequest request = QNetworkRequest(QUrl(location));
     request.setRawHeader("Content-Type", "application/json");
@@ -34,6 +53,10 @@ void CustomerData::postEmailPass(QString location, QByteArray data)
 
 void CustomerData::postOTP(QString location, QByteArray data)
 {
+    if(loggedIN){
+        qInfo() << "Customer already logged in";
+        return;
+    }
     qInfo() << "Posting OTP to Server.....";
     QNetworkRequest request = QNetworkRequest(QUrl(location));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
@@ -43,13 +66,22 @@ void CustomerData::postOTP(QString location, QByteArray data)
 }
 
 // for posting drone number
-void CustomerData::postDroneNo(QString location, QByteArray data)
+void CustomerData::postDroneNo(QString location)
 {
     qInfo() <<"Posting drone number to Server...";
+    if(vehicleData.vehicleSerialId.size() == 0){
+        qInfo() << "Vehicle Id not Retrieved";
+        return;
+    }
+    QByteArray n;
+    n.append("{\"flightControllerNumber\":\"");
+    n.append(vehicleData.vehicleSerialId);
+    n.append("\"}");
+    qInfo() << vehicleData.vehicleSerialId;
     QNetworkRequest request = QNetworkRequest(QUrl(location));
     request.setHeader(QNetworkRequest::ContentTypeHeader , "application/json");
     request.setRawHeader("auth",tokenDroneNo);
-    QNetworkReply* reply = manager.post(request,data);
+    QNetworkReply* reply = manager.post(request,n);
     connect(reply,&QNetworkReply::readyRead, this, &CustomerData::readyReadDroneNo);
 
 }
@@ -66,12 +98,14 @@ void CustomerData::logOutCustomer(QString location, QByteArray data)
 
 void CustomerData::clearData()
 {
+    //NOT FINISHED
     tokenDroneNo.clear();
     loggedIN = false;
     droneStatusCheck = false;
     authCode.clear();
     token.clear();
     tokenDroneReply.clear();
+    //
 }
 
 void CustomerData::getLatestFirmwareInfo(QString location)
@@ -79,6 +113,7 @@ void CustomerData::getLatestFirmwareInfo(QString location)
     qInfo() <<"Requesting latest firmware...";
     QUrlQuery params;
         params.addQueryItem("token", tokenDroneNo);
+        params.addQueryItem("id", "601bd6bbaf54850017f2ce5b");
     QUrl url(location);
     url.setQuery(params.query());
     QNetworkRequest request = QNetworkRequest(url);
@@ -89,28 +124,66 @@ void CustomerData::getLatestFirmwareInfo(QString location)
     connect(reply,&QNetworkReply::readyRead, this, &CustomerData::readyReadGetLatestFirmwareInfo);
 }
 
+void CustomerData::uploadKey(QString location)
+{
+    QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
+        QHttpPart imagePart;
+        imagePart.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/x-pem-file"));
+        imagePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data ; name=\"keyFile\" ; filename=\"a.pem\"") );
+
+        //UNDER CONSTRUCTION
+        QString apkLocation = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
+        //
+        QFile *file = new QFile(apkLocation);
+        if(!file->open(QIODevice::ReadOnly)){
+            qInfo() << "File Not Open";
+            return;
+        }
+        imagePart.setBodyDevice(file);
+        file->setParent(multiPart); // we cannot delete the file now, so delete it with the multiPart
+
+        multiPart->append(imagePart);
+
+        QUrlQuery params;
+        //UNDER CONSTRUCTION
+            QString _id = ""; // yet to be decided
+            params.addQueryItem("id", _id);
+        //
+        QUrl url(location);
+        url.setQuery(params.query());
+
+        QNetworkRequest request(url);
+
+        request.setRawHeader("auth",tokenDroneNo);
+        QNetworkReply* reply = manager.post(request, multiPart);
+        multiPart->setParent(reply);
+
+         connect(reply, SIGNAL(finished()),
+                  this, SLOT  (readyReadUploadKey()));
+}
+
 
 void CustomerData::readyRead()
 {
     qInfo() << "Ready Read";
     QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
-    QByteArray replyArray = reply->readAll(), m_authCode;
-    qInfo() << replyArray;
-    int idx = replyArray.lastIndexOf("loginToken");
-    int idx1 = replyArray.lastIndexOf("error");
-    if(loggedIN){
-        qInfo() << "Customer already logged in";
-        return;
-    }
-    if(idx == -1 || idx1 != -1){
+    QString replyStr = (QString)reply->readAll();
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(replyStr.toUtf8());
+    qInfo() << replyStr;
+    QJsonObject jsonObject = jsonResponse.object();
+
+    if(jsonObject.find("error") != jsonObject.end()){
         emit wrongDetails();
         return;
     }
-    idx += 13;
-    for(int i=idx; i < replyArray.size()-2; i++){
-        m_authCode.append(replyArray[i]);
+    if(jsonObject.find("loginToken") == jsonObject.end()){
+        emit wrongDetails();
+        return;
     }
-    this->authCode = m_authCode;
+    authCode.clear();
+    QString x = jsonObject["loginToken"].toString();
+    authCode.append(x);
+    qInfo() << "authcode  = " << authCode;
     emit correctDetails();
 
 }
@@ -119,29 +192,22 @@ void CustomerData::readyReadOTP()
 {
     qInfo() << "Ready Read OTP ";
     QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
-    QByteArray replyArray = reply->readAll(), m_token;
-    int idx = replyArray.lastIndexOf("error");
-    int idx1 = replyArray.lastIndexOf("accessToken");
-    if(idx != -1){
+    QString replyStr = (QString)reply->readAll();
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(replyStr.toUtf8());
+    qInfo() << replyStr;
+    QJsonObject jsonObject = jsonResponse.object();
+    if(jsonObject.find("error") != jsonObject.end()){
         emit wrongOTP();
         return;
     }
-    if(loggedIN){
-        qInfo() << "Customer already logged in";
+    if(jsonObject.find("accessToken") == jsonObject.end()){
+        emit wrongOTP();
         return;
     }
-    idx1 += 14;
-    for(int i=idx1; i<replyArray.size()-1; i++){
-        m_token.append(replyArray[i]);
-    }
-    qInfo() << m_token;
-    // extracting tokenDroneNo for "auth":header session value
     tokenDroneNo.clear();
-    for(int i =0;i<m_token.size()-1;i++){
-        tokenDroneNo.append(m_token[i]);
-    }
-    this->token = m_token;
-    this->authCode.clear();
+    QString x = jsonObject["accessToken"].toString();
+    tokenDroneNo.append(x);
+    qInfo() << "accessToken  = " << tokenDroneNo;
     loggedIN = true;
     emit correctOTP();
 }
@@ -172,7 +238,7 @@ void CustomerData::readyReadLogOut()
     qInfo() << replyStr;
     QJsonObject jsonObject = jsonResponse.object();
     // response is parsed
-    if(jsonObject.find("error") == jsonObject.end()){
+    if(jsonObject.find("error") != jsonObject.end()){
         emit loggedOutFailed();
     }
     else{
@@ -190,12 +256,29 @@ void CustomerData::readyReadGetLatestFirmwareInfo()
     qInfo() << replyStr;
     QJsonObject jsonObject = jsonResponse.object();
     // response is parsed
-    if(jsonObject.find("error") == jsonObject.end()){
+    if(jsonObject.find("error") != jsonObject.end()){
         emit getFirmwareInfoFailed();
     }
     else{
         //qgcApp()->toolbox()->multiVehicleManager()->activeVehicle()->versionCompare();
         emit getFirmwareInfoSuccessfull();
+    }
+}
+
+void CustomerData::readyReadUploadKey()
+{
+    qInfo() <<"Ready Read Upload Key";
+    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+    QString replyStr = (QString)reply->readAll();
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(replyStr.toUtf8());
+    qInfo() << replyStr;
+    QJsonObject jsonObject = jsonResponse.object();
+    // response is parsed
+    if(jsonObject.find("error") != jsonObject.end()){
+        emit keyUploadFailed();
+    }
+    else{
+        emit keyUploadSuccessful();
     }
 }
 

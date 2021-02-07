@@ -13,11 +13,10 @@ signals:
 
 
 public slots:
-    bool getLatestFirmwareInfo();
+    bool getLatestFirmwareInfo(QString m_url);
 
 
 private:
-    QString m_url;
 
 };
 
