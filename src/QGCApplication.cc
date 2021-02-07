@@ -111,6 +111,7 @@
 
 #include "login.h"
 #include "customerdata.h"
+#include "sj_npntcontrol.h"
 
 #if defined(QGC_ENABLE_PAIRING)
 #include "PairingManager.h"
@@ -521,6 +522,7 @@ void QGCApplication::_initCommon()
 
     // Register our Qml objects
     qmlRegisterType <Login>         ("com.Login", 1, 0, "Auth");
+    qmlRegisterType <SJ_NPNTControl>         ("com.NPNT_CONTROL", 1, 0, "NpntControl");
     //qmlRegisterSingletonType<CustomerData>   ("com.customerData", 1, 0, "Cust",singletonProvider);
 
 

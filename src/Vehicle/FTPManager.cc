@@ -141,6 +141,9 @@ void FTPManager::_downloadComplete(const QString& errorMsg)
         _downloadState.file.close();
         if (!errorMsg.isEmpty()) {
             _downloadState.file.remove();
+            MavlinkFTP::Request request{};
+            request.hdr.opcode  = MavlinkFTP::kCmdTerminateSession;
+            _sendRequestExpectAck(&request);
         }
     }
 
