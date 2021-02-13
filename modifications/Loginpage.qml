@@ -3,6 +3,14 @@ import QtQuick.Window 2.12
 import QtQuick.Controls 2.0
 import QtQuick.Dialogs 1.1
 import QGroundControl 1.0
+
+import QGroundControl               1.0
+import QGroundControl.Controls      1.0
+import QGroundControl.FactSystem    1.0
+import QGroundControl.FactControls  1.0
+import QGroundControl.Palette       1.0
+import QGroundControl.Controllers   1.0
+import QGroundControl.ScreenTools   1.0
 Rectangle{
 
         id:myRect
@@ -20,6 +28,18 @@ Rectangle{
         signal loginButton()
         property bool vis:true
         visible: myRect.vis
+//        QGCFileDialog {
+//            id:                 customFirmwareDialog
+//            title:              qsTr("Select Firmware File")
+//            nameFilters:        [qsTr("Firmware Files (*.px4 *.apj *.bin *.ihx)"), qsTr("All Files (*)")]
+//            selectExisting:     true
+//            folder:             QGroundControl.settingsManager.appSettings.logSavePath
+//            onAcceptedForLoad: {
+//                controller.flashFirmwareUrl(file)
+//                close()
+//            }
+//        }
+//        Component.onCompleted: customFirmwareDialog.openForLoad();
 
 Rectangle{
            id: rect1

@@ -7,7 +7,9 @@ import QGroundControl 1.0
 import com.NPNT_CONTROL 1.0
 
  Rectangle{
+     id:myrect
         Component.onCompleted: {
+            //start NPNT process
             npntController.deviceConnected();
         }
         NpntControl{
@@ -15,10 +17,22 @@ import com.NPNT_CONTROL 1.0
             onCheck1: myrect.check1 = true;
             onCheck2: myrect.check2 = true;
             onCheck3: myrect.check3 = true;
-            onCheck4: myrect.check4 = true;
+            onCheck4:{
+                myrect.check4 = true;
+            }
+        }
+        function npntComplete(){
+            return check1 & check2 & check3 & check4;
         }
 
-        id:myrect
+        function resetChecks(){
+            check1 = false;
+            check2 = false;
+            check3 = false;
+            check4 = false;
+        }
+
+        property bool complete: false
         property bool check1:false
         property bool check2:false
         property bool check3:false
@@ -73,16 +87,19 @@ import com.NPNT_CONTROL 1.0
                         checked: myrect.check3
                         text: qsTr("Check for Firmware Upgrades")
                         checkable:false
-
-
-
                     }
                     CheckBox {
                         id:c4
                         checked: myrect.check4
                         text: qsTr("Starting Key Rotation")
                         checkable:false
-
+                        onCheckedChanged: {
+                            if(npntComplete()){
+                                vis = false;
+                                resetChecks();
+                                complete = true;
+                            }
+                        }
                     }
 
             }

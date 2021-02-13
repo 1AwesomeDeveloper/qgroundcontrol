@@ -19,6 +19,8 @@ import QGroundControl.MultiVehicleManager   1.0
 import QGroundControl.ScreenTools           1.0
 import QGroundControl.Controllers           1.0
 
+import "qrc:/qml/modifications"
+import "qrc:/qmlimages/modifications/"
 Rectangle {
     id:     _root
     color:  qgcPal.toolbarBackground
@@ -28,7 +30,7 @@ Rectangle {
     readonly property int flyViewToolbar:   0
     readonly property int planViewToolbar:  1
     readonly property int simpleToolbar:    2
-
+    property bool npntComplete:false
     property var    _activeVehicle:     QGroundControl.multiVehicleManager.activeVehicle
     property bool   _communicationLost: _activeVehicle ? _activeVehicle.vehicleLinkManager.communicationLost : false
     property color  _mainStatusBGColor: qgcPal.brandingPurple
@@ -82,6 +84,10 @@ Rectangle {
             text:               qsTr("Disconnect")
             onClicked:          _activeVehicle.closeVehicle()
             visible:            _activeVehicle && _communicationLost && currentToolbar === flyViewToolbar
+        }
+        SJFTPUploadButton{
+            id :abc
+            vis: npntComplete
         }
     }
 

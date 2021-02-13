@@ -96,66 +96,84 @@ ApplicationWindow {
 
 //        }
 
-        Auth{
-            id:auth    
-            onLoggedInStatusChange: {
-                login.vis = !auth.getLoginStatus();
-                otp.vis   = auth.getLoginStatus() & !auth.getOTPStatus();
-                npnt.vis  = auth.getLoginStatus() & auth.getOTPStatus() & !false;
-            }
-        }
+//        Auth{
+//            id:auth
+//            onLoggedInStatusChange: {
+//                login.vis = !auth.getLoginStatus();
+//                otp.vis   = auth.getLoginStatus() & !auth.getOTPStatus();
+//                npnt.vis  = auth.getLoginStatus() & auth.getOTPStatus();
+//            }
 
-        HomePage{
-             id: home
-             vis : false // Will Change in future
-         }
+//        }
 
-        Loginpage{
-        id:login
-        vis: !auth.getLoginStatus()
+//        HomePage{
+//            id: home
+//            anchors.rightMargin: 0
+//            anchors.bottomMargin: 0
+//             anchors.leftMargin: 0
+//             anchors.topMargin: 0
+//             vis : false
+//         }
 
-            onGetUsername: {
-                login.usrname = auth.userName;
-            }
-            onGetPassword: {
-                login.passwrd = auth.passWord;
-            }
-            onChangeUsername:{
-                auth.userName = login.usrname;
-            }
-            onChangePassword:{
-                auth.passWord = login.passwrd;
-            }
-            onLoginButton:{
-                auth.okButton = true;
-                mainWindow.pushPreventViewSwitch()
-            }
-        }
+//        Loginpage{
+//            id:login
+//            anchors.rightMargin: 0
+//            anchors.bottomMargin: 0
+//        anchors.leftMargin: 0
+//        anchors.topMargin: 0
+//        vis: !auth.getLoginStatus()
 
-        OtpVerify{
-              id: otp
-              vis: !auth.getOTPStatus() & !login.vis
-              onGetOtpVal: {
-                  otp.otpVal = auth.otp;
-              }
-              onSetOtp: {
-                  auth.otp = otp.otpVal;
-              }
-              onVerifyButton: {
-                  auth.otpButton = true;
-              }
-              onBackButtonClicked: {
-                  login.vis = true;
-                  login.usrname=""
-                  login.passwrd=""
-                  vis = false;
-              }
-        }
+//            onGetUsername: {
+//                login.usrname = auth.userName;
+//            }
+//            onGetPassword: {
+//                login.passwrd = auth.passWord;
+//            }
+//            onChangeUsername:{
+//                auth.userName = login.usrname;
+//            }
+//            onChangePassword:{
+//                auth.passWord = login.passwrd;
+//            }
+//            onLoginButton:{
+//                auth.okButton = true;
+//                mainWindow.pushPreventViewSwitch()
+//            }
+//        }
 
-        NpntProcess{
-            id: npnt
-            vis: false
-        }
+//        OtpVerify{
+//            id: otp
+//            anchors.rightMargin: 0
+//              anchors.bottomMargin: 0
+//              anchors.leftMargin: 0
+//              anchors.topMargin: 0
+//              vis: !auth.getOTPStatus() & !login.vis
+//              onGetOtpVal: {
+//                  otp.otpVal = auth.otp;
+//              }
+//              onSetOtp: {
+//                  auth.otp = otp.otpVal;
+//              }
+//              onVerifyButton: {
+//                  auth.otpButton = true;
+//              }
+//              onBackButtonClicked: {
+//                  login.vis = true;
+//                  login.usrname=""
+//                  login.passwrd=""
+//                  vis = false;
+//              }
+//        }
+
+//        NpntProcess{
+//            id: npnt
+//            anchors.rightMargin: 0
+//            anchors.bottomMargin: 0
+//            anchors.leftMargin: 0
+//            anchors.topMargin: 0
+//            vis: false
+//            onCompleteChanged: globals.npntComplete = true;
+//        }
 
     QtObject {
         id: firstRunPromptManager
@@ -193,7 +211,7 @@ ApplicationWindow {
 
     QtObject {
         id: globals
-
+        property bool               npntComplete
         readonly property var       activeVehicle:                  QGroundControl.multiVehicleManager.activeVehicle
         readonly property real      defaultTextHeight:              ScreenTools.defaultFontPixelHeight
         readonly property real      defaultTextWidth:               ScreenTools.defaultFontPixelWidth
@@ -439,6 +457,7 @@ ApplicationWindow {
         id:         toolbar
         height:     ScreenTools.toolbarHeight
         visible:    !QGroundControl.videoManager.fullScreen
+        npntComplete : globals.npntComplete
     }
 
     footer: LogReplayStatusBar {
@@ -450,6 +469,7 @@ ApplicationWindow {
         height:         mainWindow.height
         edge:           Qt.LeftEdge
         interactive:    true
+
         dragMargin:     0
         visible:        false
 
@@ -589,6 +609,10 @@ ApplicationWindow {
 
     PlanView {
         id:             planView
+        anchors.rightMargin: 0
+        anchors.bottomMargin: 0
+        anchors.leftMargin: 0
+        anchors.topMargin: 0
         anchors.fill:   parent
         visible:        false
     }

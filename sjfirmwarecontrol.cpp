@@ -7,6 +7,6 @@ SJFirmwareControl::SJFirmwareControl(QObject *parent) : QObject(parent)
 
 bool SJFirmwareControl::getLatestFirmwareInfo(QString m_url)
 {
-    qgcApp()->getCust()->getLatestFirmwareInfo(m_url+"/latestFirmwareDownload");
+    qgcApp()->getCust()->getLatestFirmwareInfo(m_url+"/allFirmware");
     return true;
 }
