@@ -148,6 +148,7 @@ void FTPManager::_downloadComplete(const QString& errorMsg)
     }
 
     emit downloadComplete(downloadFilePath, errorMsg);
+    emit downloadComplete1();
 }
 void FTPManager::_uploadComplete(const QString& errorMsg)
 {

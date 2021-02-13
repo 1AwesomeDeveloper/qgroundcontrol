@@ -42,6 +42,7 @@ private:
     QTimer *timer1, *timer2, *timer3, *timer4;
     CustomerData* cust;
     QString m_url;
+    bool keyRotating;
 };
 
 #endif // SJ_NPNTCONTROL_H

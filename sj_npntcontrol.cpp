@@ -2,6 +2,7 @@
 
 SJ_NPNTControl::SJ_NPNTControl(QObject *parent) : QObject(parent)
 {
+    keyRotating = false;
     m_firmwareController    = new SJFirmwareControl();
     m_keyController         = new SJKeyRotation();
     cust                    = qgcApp()->getCust();
@@ -13,14 +14,14 @@ SJ_NPNTControl::SJ_NPNTControl(QObject *parent) : QObject(parent)
     connect(timer1  , SIGNAL(timeout())                  , this, SLOT(deviceConnected())         );
     connect(timer2  , SIGNAL(timeout())                  , this, SLOT(boardRegistered())         );
     connect(timer3  , SIGNAL(timeout())                  , this, SLOT(firmwareCheck())           );
-    connect(timer4  , SIGNAL(timeout())                  , this, SLOT(boardRegistered())         );
+    //connect(timer4  , SIGNAL(timeout())                  , this, SLOT(boardRegistered())         );
 
     connect(cust    , SIGNAL(droneNotRegistered())        , this, SLOT(boardNotRegistered())        );
     connect(cust    , SIGNAL(droneRegistered())           , this, SLOT(boardIsRegistered())         );
     connect(cust    , SIGNAL(getFirmwareInfoFailed())     , this, SLOT(firmwareUpgradeRequired())   );
     connect(cust    , SIGNAL(getFirmwareInfoSuccessfull()), this, SLOT(firmwareOK())                );
-    connect(cust    , SIGNAL(getFirmwareInfoFailed())     , this, SLOT(firmwareUpgradeRequired())   );
-    connect(cust    , SIGNAL(getFirmwareInfoSuccessfull()), this, SLOT(firmwareOK())                );
+    connect(cust    , SIGNAL(keyUploadFailed())           , this, SLOT(KeyRotateFailed())   );
+    connect(cust    , SIGNAL(keyUploadSuccessful())       , this, SLOT(keyRotatedOK())                );
 }
 
 bool SJ_NPNTControl::deviceConnected()
@@ -53,8 +54,13 @@ bool SJ_NPNTControl::firmwareCheck()
 
 bool SJ_NPNTControl::keyRotated()
 {
-    m_keyController->startKeyRotation();
-    return true;
+    if(!keyRotating)
+    {
+        keyRotating = true;
+        m_keyController->startKeyRotation(m_url+"/flyup");
+        return true;
+    }
+    return false;
 }
 
 void SJ_NPNTControl::firmwareOK()
@@ -71,11 +77,13 @@ void SJ_NPNTControl::firmwareUpgradeRequired()
 
 void SJ_NPNTControl::keyRotatedOK()
 {
+    keyRotating = false;
     emit check4();
 }
 
 void SJ_NPNTControl::KeyRotateFailed()
 {
+    keyRotating = false;
     return;
 }
 

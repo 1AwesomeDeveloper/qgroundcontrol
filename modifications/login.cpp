@@ -40,10 +40,6 @@ bool Login::otpButton(){
     return m_otpButton;
 }
 
-//drone number value
-QString Login::droneNo(){
-    return m_droneNo;
-}
 
 void Login::setUserName(const QString &userName){
     if (userName == m_userName)
@@ -67,20 +63,6 @@ void Login::setPassWord(const QString &passWord){
     emit passWordChanged();
 }
 
-// setting drone number value
-void Login::setDroneNo(const QString &droneNo){
-    if(droneNo != "123456354")
-    {
-        m_droneNo = "123456354";
-       /* QByteArray n;
-        n.append("{\"droneNo\":\"");
-        n.append(m_droneNo);
-        n.append("\"}");
-        postDroneNo(myURL+"/checkMyDrone",n);*/
-     }
-    emit droneNoChanged();
-
-}
 
 void Login::checkDataBase(bool okButton)
 {

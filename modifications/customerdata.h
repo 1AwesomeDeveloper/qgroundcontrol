@@ -24,6 +24,7 @@ public:
     bool loggedIn(){return loggedIN;}
     bool DroneStatusCheck(){return droneStatusCheck;}
     bool vehicleIDChanged(QString vehicleID);
+    bool getNpntStatus(){return vehicleData.npntCheck;}
 
 signals:
     void correctDetails();
@@ -50,7 +51,7 @@ public slots:
     void logOutCustomer(QString location, QByteArray data);
     void clearData();
     void getLatestFirmwareInfo(QString location);
-    void uploadKey(QString location);
+    void uploadKey(QString location, QString pathOfKey);
 
 private slots:
     void readyRead();
@@ -71,6 +72,7 @@ private:
     struct customerVehicleData
     {
         QString vehicleSerialId;
+        bool npntCheck;
     } vehicleData;
 
     QNetworkAccessManager manager;

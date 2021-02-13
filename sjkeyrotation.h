@@ -15,15 +15,19 @@ public:
 signals:
 
 public slots:
-    void startKeyRotation();
+    void startKeyRotation(QString URL);
 
 private slots:
     bool downloadKey();
     bool uploadKey();
+    void downloadComplete(const QString &path, const QString &error);
 
 private:
     QString pathOnBoard;
     QString keyFileName;
+    QString pathOnSystem;
+    QString url;
+    bool uploading;
 };
 
 #endif // SJKEYROTATION_H

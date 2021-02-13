@@ -43,6 +43,7 @@ public:
 
 signals:
     void downloadComplete(const QString& file, const QString& errorMsg);
+    void downloadComplete1();
     void uploadComplete(const QString& file, const QString& errorMsg);
 
     // Signals associated with all commands

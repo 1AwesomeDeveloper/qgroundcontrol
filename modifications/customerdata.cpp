@@ -38,9 +38,7 @@ void CustomerData::get(QString location)
 }
 
 void CustomerData::postEmailPass(QString location, QByteArray data)
-{
-
-    if(loggedIN){
+{    if(loggedIN){
         qInfo() << "Customer already logged in";
         return;
     }
@@ -108,31 +106,50 @@ void CustomerData::clearData()
     //
 }
 
+//void CustomerData::getLatestFirmwareInfo(QString location)
+//{
+//    qInfo() <<"Requesting latest firmware...";
+//    QUrlQuery params;
+//        params.addQueryItem("token", tokenDroneNo);
+//        params.addQueryItem("id", "601bd6bbaf54850017f2ce5b");
+//    QUrl url(location);
+//    url.setQuery(params.query());
+//    QNetworkRequest request = QNetworkRequest(url);
+//    request.setHeader(QNetworkRequest::ContentTypeHeader , "application/json");
+//    //request.setRawHeader("auth",tokenDroneNo);
+
+//    QNetworkReply* reply = manager.get(request);
+//    connect(reply,&QNetworkReply::readyRead, this, &CustomerData::readyReadGetLatestFirmwareInfo);
+//}
+
 void CustomerData::getLatestFirmwareInfo(QString location)
 {
     qInfo() <<"Requesting latest firmware...";
-    QUrlQuery params;
-        params.addQueryItem("token", tokenDroneNo);
-        params.addQueryItem("id", "601bd6bbaf54850017f2ce5b");
+    location += QString("/601bd6bbaf54850017f2ce5b");
     QUrl url(location);
-    url.setQuery(params.query());
     QNetworkRequest request = QNetworkRequest(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader , "application/json");
-    //request.setRawHeader("auth",tokenDroneNo);
+    request.setRawHeader("auth",tokenDroneNo);
 
     QNetworkReply* reply = manager.get(request);
     connect(reply,&QNetworkReply::readyRead, this, &CustomerData::readyReadGetLatestFirmwareInfo);
 }
 
-void CustomerData::uploadKey(QString location)
+void CustomerData::uploadKey(QString location, QString pathOfKey)
 {
+    QString fileName;
+    for(auto it = pathOfKey.rbegin(); it!=pathOfKey.rend(); it++)
+        if(*it == '/') break;
+        else fileName.push_front(*it);
+    qInfo() << fileName;
+
     QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
         QHttpPart imagePart;
         imagePart.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/x-pem-file"));
-        imagePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data ; name=\"keyFile\" ; filename=\"a.pem\"") );
+        imagePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant(QString("form-data ; name=\"keyFile\" ; filename=\"(%1)\"").arg(fileName)) );
 
         //UNDER CONSTRUCTION
-        QString apkLocation = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
+        QString apkLocation = pathOfKey;
         //
         QFile *file = new QFile(apkLocation);
         if(!file->open(QIODevice::ReadOnly)){
@@ -146,7 +163,7 @@ void CustomerData::uploadKey(QString location)
 
         QUrlQuery params;
         //UNDER CONSTRUCTION
-            QString _id = ""; // yet to be decided
+            QString _id = this->vehicleData.vehicleSerialId; // yet to be decided
             params.addQueryItem("id", _id);
         //
         QUrl url(location);
@@ -279,6 +296,7 @@ void CustomerData::readyReadUploadKey()
     }
     else{
         emit keyUploadSuccessful();
+        vehicleData.npntCheck = true;
     }
 }
 

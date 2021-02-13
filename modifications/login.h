@@ -13,7 +13,6 @@ class Login: public QObject
     Q_PROPERTY(QString passWord READ passWord WRITE setPassWord NOTIFY passWordChanged)
     Q_PROPERTY(bool okButton READ okButton WRITE checkDataBase NOTIFY verifyCredentials)
     Q_PROPERTY(bool otpButton READ otpButton WRITE checkOTP NOTIFY verifyOTP)
-    Q_PROPERTY(QString droneNo READ droneNo WRITE setDroneNo NOTIFY droneNoChanged)
 
     Q_PROPERTY(bool logoutButton READ logoutButton WRITE custLogout NOTIFY logoutCustomer)
 public:
@@ -24,7 +23,6 @@ public:
     QString userName();
     QString otp();
     QString passWord();
-    QString droneNo(); //storing drone number
 
     bool okButton();
     bool otpButton();
@@ -34,7 +32,6 @@ public:
     void setUserName(const QString &userName);
     void setOTP(const QString &otp);
     void setPassWord(const QString &passWord);
-    void setDroneNo(const QString &droneNo); // writting droneNo value
 
     void checkDataBase(bool okButton);
     void checkOTP(bool otpButton);
@@ -47,7 +44,6 @@ signals:
     void passWordChanged();
     void verifyCredentials();
     void verifyOTP();
-    void droneNoChanged(); // notifying  when droneNo changed
 
     void loggedInStatusChange();
     void logoutCustomer();
@@ -79,7 +75,6 @@ private:
     bool m_otpButton;
     bool mutex;
     QString myURL;
-    QString m_droneNo;//drone number value
 };
 
 #endif // LOGIN_H
