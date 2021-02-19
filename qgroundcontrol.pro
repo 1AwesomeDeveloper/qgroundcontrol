@@ -378,6 +378,7 @@ INCLUDEPATH += .
 
 INCLUDEPATH += \
     include/ui \
+    modifications \
     src \
     src/ADSB \
     src/api \
@@ -425,6 +426,14 @@ contains (DEFINES, QGC_ENABLE_PAIRING) {
 #
 
 HEADERS += \
+    modifications/customerdata.h \
+    modifications/login.h \
+    modifications/sjpilotdata.h \
+    modifications/sjpilotpage.h \
+    sj_npntcontrol.h \
+    sjfirmwarecontrol.h \
+    sjftpuploadbutton.h \
+    sjkeyrotation.h \
     src/QmlControls/QmlUnitsConversion.h \
     src/Vehicle/VehicleEscStatusFactGroup.h \
     src/api/QGCCorePlugin.h \
@@ -439,6 +448,14 @@ contains (DEFINES, QGC_ENABLE_PAIRING) {
 }
 
 SOURCES += \
+    modifications/customerdata.cpp \
+    modifications/login.cpp \
+    modifications/sjpilotdata.cpp \
+    modifications/sjpilotpage.cpp \
+    sj_npntcontrol.cpp \
+    sjfirmwarecontrol.cpp \
+    sjftpuploadbutton.cpp \
+    sjkeyrotation.cpp \
     src/Vehicle/VehicleEscStatusFactGroup.cc \
     src/api/QGCCorePlugin.cc \
     src/api/QGCOptions.cc \

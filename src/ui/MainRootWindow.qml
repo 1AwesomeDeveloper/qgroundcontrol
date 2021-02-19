@@ -20,6 +20,12 @@ import QGroundControl.ScreenTools   1.0
 import QGroundControl.FlightDisplay 1.0
 import QGroundControl.FlightMap     1.0
 
+import "qrc:/qml/modifications"
+import "qrc:/qmlimages/modifications/"
+import com.Login 1.0
+import com.NPNT_CONTROL 1.0
+//import com.customerData 1.0
+
 /// @brief Native QML top level window
 /// All properties defined here are visible to all QML pages.
 ApplicationWindow {
@@ -40,6 +46,134 @@ ApplicationWindow {
         // Start the sequence of first run prompt(s)
         firstRunPromptManager.nextPrompt()
     }
+
+//    Connections{
+
+//            target: Cust
+
+//            onCorrectDetails: {
+//                auth.passWord = "";
+//                login.passwrd = "";
+//                login.vis = false;
+//                otp.vis = true;
+//            }
+//            onWrongDetails: {
+//                auth.userName = "";
+//                login.usrname = "";
+//                auth.passWord = "";
+//                login.passwrd = "";
+//                login.vis = true;
+//                otp.vis = false;
+//                showMessageDialog("Invalid credentials","Please enter the correct cerdentials.");
+
+//            }
+//            onCorrectOTP: {
+//                auth.otp = "";
+//                otp.otpVal = "";
+//                npnt.vis = true;
+//                otp.vis = false;
+//                if(QGroundControl.multiVehicleManager.activeVehicle){
+//                    npnt.check1=true
+//                }
+//                else npnt.check1 = false;
+
+//            }
+//            onWrongOTP: {
+//                auth.otp = "";
+//                otp.otpVal = "";
+//                otp.vis = true;
+//                npnt.vis = false;
+//                login.vis = false;
+//                showMessageDialog("Wrong OTP","Wrong OTP!");
+//            }
+
+//            onDroneNotRegistered: {
+//                npnt.check2 = true;
+//            }
+//            onDroneRegistered: {
+//                showMessageDialog("Register drone","Your drone is not registered.");
+//            }
+
+//        }
+
+//        Auth{
+//            id:auth
+//            onLoggedInStatusChange: {
+//                login.vis = !auth.getLoginStatus();
+//                otp.vis   = auth.getLoginStatus() & !auth.getOTPStatus();
+//                npnt.vis  = auth.getLoginStatus() & auth.getOTPStatus();
+//            }
+
+//        }
+
+//        HomePage{
+//            id: home
+//            anchors.rightMargin: 0
+//            anchors.bottomMargin: 0
+//             anchors.leftMargin: 0
+//             anchors.topMargin: 0
+//             vis : false
+//         }
+
+//        Loginpage{
+//            id:login
+//            anchors.rightMargin: 0
+//            anchors.bottomMargin: 0
+//        anchors.leftMargin: 0
+//        anchors.topMargin: 0
+//        vis: !auth.getLoginStatus()
+
+//            onGetUsername: {
+//                login.usrname = auth.userName;
+//            }
+//            onGetPassword: {
+//                login.passwrd = auth.passWord;
+//            }
+//            onChangeUsername:{
+//                auth.userName = login.usrname;
+//            }
+//            onChangePassword:{
+//                auth.passWord = login.passwrd;
+//            }
+//            onLoginButton:{
+//                auth.okButton = true;
+//                mainWindow.pushPreventViewSwitch()
+//            }
+//        }
+
+//        OtpVerify{
+//            id: otp
+//            anchors.rightMargin: 0
+//              anchors.bottomMargin: 0
+//              anchors.leftMargin: 0
+//              anchors.topMargin: 0
+//              vis: !auth.getOTPStatus() & !login.vis
+//              onGetOtpVal: {
+//                  otp.otpVal = auth.otp;
+//              }
+//              onSetOtp: {
+//                  auth.otp = otp.otpVal;
+//              }
+//              onVerifyButton: {
+//                  auth.otpButton = true;
+//              }
+//              onBackButtonClicked: {
+//                  login.vis = true;
+//                  login.usrname=""
+//                  login.passwrd=""
+//                  vis = false;
+//              }
+//        }
+
+//        NpntProcess{
+//            id: npnt
+//            anchors.rightMargin: 0
+//            anchors.bottomMargin: 0
+//            anchors.leftMargin: 0
+//            anchors.topMargin: 0
+//            vis: false
+//            onCompleteChanged: globals.npntComplete = true;
+//        }
 
     QtObject {
         id: firstRunPromptManager
@@ -77,7 +211,7 @@ ApplicationWindow {
 
     QtObject {
         id: globals
-
+        property bool               npntComplete
         readonly property var       activeVehicle:                  QGroundControl.multiVehicleManager.activeVehicle
         readonly property real      defaultTextHeight:              ScreenTools.defaultFontPixelHeight
         readonly property real      defaultTextWidth:               ScreenTools.defaultFontPixelWidth
@@ -323,6 +457,7 @@ ApplicationWindow {
         id:         toolbar
         height:     ScreenTools.toolbarHeight
         visible:    !QGroundControl.videoManager.fullScreen
+        npntComplete : globals.npntComplete
     }
 
     footer: LogReplayStatusBar {
@@ -334,6 +469,7 @@ ApplicationWindow {
         height:         mainWindow.height
         edge:           Qt.LeftEdge
         interactive:    true
+
         dragMargin:     0
         visible:        false
 
@@ -473,6 +609,10 @@ ApplicationWindow {
 
     PlanView {
         id:             planView
+        anchors.rightMargin: 0
+        anchors.bottomMargin: 0
+        anchors.leftMargin: 0
+        anchors.topMargin: 0
         anchors.fill:   parent
         visible:        false
     }

@@ -109,6 +109,10 @@
 #include "QGCMAVLink.h"
 #include "VehicleLinkManager.h"
 
+#include "login.h"
+#include "customerdata.h"
+#include "sj_npntcontrol.h"
+#include "sjftpuploadbutton.h"
 #if defined(QGC_ENABLE_PAIRING)
 #include "PairingManager.h"
 #endif
@@ -517,6 +521,11 @@ void QGCApplication::_initCommon()
     QSettings settings;
 
     // Register our Qml objects
+    qmlRegisterType <Login>         ("com.Login", 1, 0, "Auth");
+    qmlRegisterType <SJ_NPNTControl>         ("com.NPNT_CONTROL", 1, 0, "NpntControl");
+    qmlRegisterType <SJFTPUploadButton>         ("com.SJFTPUploadButton", 1, 0, "SJFTPUploadController");
+    //qmlRegisterSingletonType<CustomerData>   ("com.customerData", 1, 0, "Cust",singletonProvider);
+
 
     qmlRegisterType<QGCPalette>     ("QGroundControl.Palette", 1, 0, "QGCPalette");
     qmlRegisterType<QGCMapPalette>  ("QGroundControl.Palette", 1, 0, "QGCMapPalette");
@@ -537,7 +546,7 @@ void QGCApplication::_initCommon()
 
     qmlRegisterUncreatableType<MissionItem>         (kQGroundControl,                       1, 0, "MissionItem",                kRefOnly);
     qmlRegisterUncreatableType<VisualMissionItem>   (kQGroundControl,                       1, 0, "VisualMissionItem",          kRefOnly);
-    qmlRegisterUncreatableType<FlightPathSegment>    (kQGroundControl,                       1, 0, "FlightPathSegment",           kRefOnly);
+    qmlRegisterUncreatableType<FlightPathSegment>   (kQGroundControl,                       1, 0, "FlightPathSegment",           kRefOnly);
     qmlRegisterUncreatableType<QmlObjectListModel>  (kQGroundControl,                       1, 0, "QmlObjectListModel",         kRefOnly);
     qmlRegisterUncreatableType<MissionCommandTree>  (kQGroundControl,                       1, 0, "MissionCommandTree",         kRefOnly);
     qmlRegisterUncreatableType<CameraCalc>          (kQGroundControl,                       1, 0, "CameraCalc",                 kRefOnly);
