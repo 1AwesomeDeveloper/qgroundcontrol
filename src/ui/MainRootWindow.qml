@@ -24,7 +24,6 @@ import "qrc:/qml/modifications"
 import "qrc:/qmlimages/modifications/"
 import com.Login 1.0
 import com.NPNT_CONTROL 1.0
-//import com.customerData 1.0
 
 /// @brief Native QML top level window
 /// All properties defined here are visible to all QML pages.
@@ -47,133 +46,95 @@ ApplicationWindow {
         firstRunPromptManager.nextPrompt()
     }
 
-//    Connections{
+        Auth{
+            id:auth
+            onLoggedInStatusChange: {
+                login.vis = !auth.getLoginStatus();
+                otp.vis   = auth.getLoginStatus() & !auth.getOTPStatus();
+                npnt.vis  = auth.getLoginStatus() & auth.getOTPStatus();
+            }
 
-//            target: Cust
+        }
 
-//            onCorrectDetails: {
-//                auth.passWord = "";
-//                login.passwrd = "";
-//                login.vis = false;
-//                otp.vis = true;
-//            }
-//            onWrongDetails: {
-//                auth.userName = "";
-//                login.usrname = "";
-//                auth.passWord = "";
-//                login.passwrd = "";
-//                login.vis = true;
-//                otp.vis = false;
-//                showMessageDialog("Invalid credentials","Please enter the correct cerdentials.");
+        HomePage{
+            id: home
+            anchors.rightMargin: 0
+            anchors.bottomMargin: 0
+            anchors.leftMargin: 0
+            anchors.topMargin: 0
+             vis : false
+         }
 
-//            }
-//            onCorrectOTP: {
-//                auth.otp = "";
-//                otp.otpVal = "";
-//                npnt.vis = true;
-//                otp.vis = false;
-//                if(QGroundControl.multiVehicleManager.activeVehicle){
-//                    npnt.check1=true
-//                }
-//                else npnt.check1 = false;
+        Loginpage{
+            id:login
+            anchors.rightMargin: 0
+            anchors.bottomMargin: 0
+            anchors.leftMargin: 0
+            anchors.topMargin: 0
+            vis: !auth.getLoginStatus()
 
-//            }
-//            onWrongOTP: {
-//                auth.otp = "";
-//                otp.otpVal = "";
-//                otp.vis = true;
-//                npnt.vis = false;
-//                login.vis = false;
-//                showMessageDialog("Wrong OTP","Wrong OTP!");
-//            }
+            onGetUsername: {
+                login.usrname = auth.userName;
+            }
+            onGetPassword: {
+                login.passwrd = auth.passWord;
+            }
+            onChangeUsername:{
+                auth.userName = login.usrname;
+            }
+            onChangePassword:{
+                auth.passWord = login.passwrd;
+            }
+            onLoginButton:{
+                auth.okButton = true;
+                mainWindow.pushPreventViewSwitch()
+            }
+            onFirmwarebtn: {
+                sjfirmware.vis = true
+                login.vis = false
+            }
 
-//            onDroneNotRegistered: {
-//                npnt.check2 = true;
-//            }
-//            onDroneRegistered: {
-//                showMessageDialog("Register drone","Your drone is not registered.");
-//            }
+        }
 
-//        }
+        OtpVerify{
+            id: otp
+            anchors.rightMargin: 0
+              anchors.bottomMargin: 0
+              anchors.leftMargin: 0
+              anchors.topMargin: 0
+              vis: !auth.getOTPStatus() & !login.vis
+              onGetOtpVal: {
+                  otp.otpVal = auth.otp;
+              }
+              onSetOtp: {
+                  auth.otp = otp.otpVal;
+              }
+              onVerifyButton: {
+                  auth.otpButton = true;
+              }
+              onBackButtonClicked: {
+                  login.vis = true;
+                  login.usrname=""
+                  login.passwrd=""
+                  vis = false;
+              }
+        }
 
-//        Auth{
-//            id:auth
-//            onLoggedInStatusChange: {
-//                login.vis = !auth.getLoginStatus();
-//                otp.vis   = auth.getLoginStatus() & !auth.getOTPStatus();
-//                npnt.vis  = auth.getLoginStatus() & auth.getOTPStatus();
-//            }
+        NpntProcess{
+            id: npnt
+            anchors.rightMargin: 0
+            anchors.bottomMargin: 0
+            anchors.leftMargin: 0
+            anchors.topMargin: 0
+            vis: false
+            onCompleteChanged: globals.npntComplete = true
 
-//        }
+        }
 
-//        HomePage{
-//            id: home
-//            anchors.rightMargin: 0
-//            anchors.bottomMargin: 0
-//             anchors.leftMargin: 0
-//             anchors.topMargin: 0
-//             vis : false
-//         }
+    SJfirmware{
+        id: sjfirmware
 
-//        Loginpage{
-//            id:login
-//            anchors.rightMargin: 0
-//            anchors.bottomMargin: 0
-//        anchors.leftMargin: 0
-//        anchors.topMargin: 0
-//        vis: !auth.getLoginStatus()
-
-//            onGetUsername: {
-//                login.usrname = auth.userName;
-//            }
-//            onGetPassword: {
-//                login.passwrd = auth.passWord;
-//            }
-//            onChangeUsername:{
-//                auth.userName = login.usrname;
-//            }
-//            onChangePassword:{
-//                auth.passWord = login.passwrd;
-//            }
-//            onLoginButton:{
-//                auth.okButton = true;
-//                mainWindow.pushPreventViewSwitch()
-//            }
-//        }
-
-//        OtpVerify{
-//            id: otp
-//            anchors.rightMargin: 0
-//              anchors.bottomMargin: 0
-//              anchors.leftMargin: 0
-//              anchors.topMargin: 0
-//              vis: !auth.getOTPStatus() & !login.vis
-//              onGetOtpVal: {
-//                  otp.otpVal = auth.otp;
-//              }
-//              onSetOtp: {
-//                  auth.otp = otp.otpVal;
-//              }
-//              onVerifyButton: {
-//                  auth.otpButton = true;
-//              }
-//              onBackButtonClicked: {
-//                  login.vis = true;
-//                  login.usrname=""
-//                  login.passwrd=""
-//                  vis = false;
-//              }
-//        }
-
-//        NpntProcess{
-//            id: npnt
-//            anchors.rightMargin: 0
-//            anchors.bottomMargin: 0
-//            anchors.leftMargin: 0
-//            anchors.topMargin: 0
-//            vis: false
-//            onCompleteChanged: globals.npntComplete = true;
-//        }
+    }
 
     QtObject {
         id: firstRunPromptManager

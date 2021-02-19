@@ -4,7 +4,7 @@
 Login::Login(QObject *parent): QObject(parent){
     mutex = false;
     myURL = "https://drone-management-api-ankit1998.herokuapp.com/customer";
-    qgcApp()->toolbox()->linkManager()->shutdown();
+    //qgcApp()->toolbox()->linkManager()->shutdown();
     loginStatus = false;
     OTPStatus   = false;
     connect(qgcApp()->getCust(), &CustomerData::correctDetails,         this, &Login::LoginSuccessful);

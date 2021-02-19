@@ -281,6 +281,7 @@
         <file>modifications/OtpVerify.qml</file>
         <file>modifications/PilotLogin.qml</file>
         <file>modifications/SJFTPUploadButton.qml</file>
+        <file>modifications/SJfirmware.qml</file>
     </qresource>
     <qresource prefix="/FirstRunPromptDialogs">
         <file alias="UnitsFirstRunPrompt.qml">src/FirstRunPromptDialogs/UnitsFirstRunPrompt.qml</file>
@@ -345,5 +346,4 @@
         <file alias="Version.MetaData.json.gz">src/comm/MockLink.Version.MetaData.json.gz</file>
         <file alias="Parameter.MetaData.json">src/comm/MockLink.Parameter.MetaData.json</file>
     </qresource>
-
 </RCC>

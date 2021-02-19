@@ -489,8 +489,7 @@ void FirmwareUpgradeController::_eraseProgressTick(void)
 /// Appends the specified text to the status log area in the ui
 void FirmwareUpgradeController::_appendStatusLog(const QString& text, bool critical)
 {
-    Q_ASSERT(_statusLog);
-    
+    //Q_ASSERT(_statusLog);
     QVariant returnedValue;
     QVariant varText;
     

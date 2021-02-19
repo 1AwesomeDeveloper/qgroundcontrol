@@ -17,9 +17,8 @@ import com.NPNT_CONTROL 1.0
             onCheck1: myrect.check1 = true;
             onCheck2: myrect.check2 = true;
             onCheck3: myrect.check3 = true;
-            onCheck4:{
-                myrect.check4 = true;
-            }
+            onCheck4: myrect.check4 = true;
+
         }
         function npntComplete(){
             return check1 & check2 & check3 & check4;
@@ -114,5 +113,6 @@ import com.NPNT_CONTROL 1.0
         width: parent.width/3
         height: parent.height/6
     }
-    }
+
+ }
 
