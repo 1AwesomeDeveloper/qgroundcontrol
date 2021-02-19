@@ -209,6 +209,7 @@ SetupPage {
                                             return
                                         }
                                         var firmwareUrl = controller.apmFirmwareUrls[ardupilotFirmwareSelectionCombo.currentIndex]
+
                                         if (firmwareUrl == "") {
                                             return
                                         }

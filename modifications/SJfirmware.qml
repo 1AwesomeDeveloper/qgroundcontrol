@@ -97,8 +97,7 @@ Rectangle{
     FirmwareUpgradeController {
         id:             controller
         onError: display.text = "Upgrade Failed"
-
-        //progressBar:    progressBar
+        progressBar:    progressBar
         //statusLog:      display
 
         property var activeVehicle: QGroundControl.multiVehicleManager.activeVehicle
@@ -139,21 +138,27 @@ Rectangle{
             }
         } else {
             // We end up here when we detect a board plugged in after we've started upgrade
-            display.text = "Found device: "+ controller.boardType
-
+            display.text = "Found device !!"
         }
         }
 
+        onShowFirmwareSelectDlg: {
+            controller.flashFirmwareUrl("/home/kapil/Downloads/abc.px4")
+        }
 
-//    Connections {
-//        target:     controller
-//        onError:    reject()
-//    }
+        onEraseStarted:{
+            display.append("")
+            display.append("Erasing Old Firmware...")
+        }
 
-//    function reject() {
-//        controller.cancelFlash()
-// }
+        onEraseComplete: {
+            display.append("Flashing New Firmware...")
+        }
 
+        onFlashComplete: {
+            display.append("")
+            display.append("Flash Complete!")
+        }
 }
 }
 
