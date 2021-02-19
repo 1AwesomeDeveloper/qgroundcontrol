@@ -6,8 +6,6 @@
  * COPYING.md in the root of the source code directory.
  *
  ****************************************************************************/
-
-
 import QtQuick 2.3
 import QtQuick.Controls 1.2
 import QtQuick.Controls.Styles 1.4
@@ -74,7 +72,7 @@ SetupPage {
 
             function setupPageCompleted() {
                 controller.startBoardSearch()
-                _defaultFirmwareIsPX4 = _defaultFirmwareFact.rawValue === _defaultFimwareTypePX4 // we don't want this to be bound and change as radios are selected
+                _defaultFirmareIsPX4 = _defaultFirmwareFact.rawValue === _defaultFimwareTypePX4 // we don't want this to be bound and change as radios are selected
             }
 
             QGCFileDialog {
@@ -211,6 +209,7 @@ SetupPage {
                                             return
                                         }
                                         var firmwareUrl = controller.apmFirmwareUrls[ardupilotFirmwareSelectionCombo.currentIndex]
+
                                         if (firmwareUrl == "") {
                                             return
                                         }
@@ -516,7 +515,7 @@ SetupPage {
 
             TextArea {
                 id:                 statusTextArea
-                Layout.preferredWidth:              parent.width
+                Layout.preferredWidth: parent.width
                 Layout.fillHeight:  true
                 readOnly:           true
                 frameVisible:       false

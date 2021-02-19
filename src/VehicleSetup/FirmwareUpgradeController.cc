@@ -489,8 +489,7 @@ void FirmwareUpgradeController::_eraseProgressTick(void)
 /// Appends the specified text to the status log area in the ui
 void FirmwareUpgradeController::_appendStatusLog(const QString& text, bool critical)
 {
-    Q_ASSERT(_statusLog);
-    
+    //Q_ASSERT(_statusLog);
     QVariant returnedValue;
     QVariant varText;
     
@@ -521,11 +520,13 @@ void FirmwareUpgradeController::_eraseStarted(void)
     // We set up our own progress bar for erase since the erase command does not provide one
     _eraseTickCount = 0;
     _eraseTimer.start(_eraseTickMsec);
+    emit eraseStarted();
 }
 
 void FirmwareUpgradeController::_eraseComplete(void)
 {
     _eraseTimer.stop();
+    emit eraseComplete();
 }
 
 void FirmwareUpgradeController::setSelectedFirmwareBuildType(FirmwareBuildType_t firmwareType)

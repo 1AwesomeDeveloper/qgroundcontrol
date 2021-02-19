@@ -4,16 +4,16 @@ import QtQuick.Controls 2.0
 import QtQuick.Dialogs 1.1
 import QGroundControl 1.0
 
-import QGroundControl               1.0
 import QGroundControl.Controls      1.0
 import QGroundControl.FactSystem    1.0
 import QGroundControl.FactControls  1.0
 import QGroundControl.Palette       1.0
 import QGroundControl.Controllers   1.0
 import QGroundControl.ScreenTools   1.0
+
 Rectangle{
 
-        id:myRect
+        id:myrect
         color:"grey"
         anchors.fill: parent
         z:1
@@ -21,13 +21,15 @@ Rectangle{
         property bool   _communicationLost: _activeVehicle ? _activeVehicle.vehicleLinkManager.communicationLost : false
         property string usrname
         property string passwrd
+        signal firmwarebtn()
         signal getUsername()
         signal getPassword()
         signal changeUsername(string a)
         signal changePassword(string b)
         signal loginButton()
         property bool vis:true
-        visible: myRect.vis
+        visible: myrect.vis
+
 //        QGCFileDialog {
 //            id:                 customFirmwareDialog
 //            title:              qsTr("Select Firmware File")
@@ -102,7 +104,6 @@ Rectangle{
                }
 
                Button{
-
                    id:mybtn
                    text: "Login"
                    onClicked:{
@@ -122,6 +123,15 @@ Image {
     height: parent.height/6
 
 }
+
+Button{
+    id:firmwareUpgradebutton
+    text: "Upgrade Firmware"
+    anchors.right: myrect.right
+    onClicked: firmwarebtn()
+
+}
+
 
 }
 
