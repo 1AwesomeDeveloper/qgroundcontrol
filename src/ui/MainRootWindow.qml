@@ -92,29 +92,29 @@ ApplicationWindow {
 
 //        }
 
-//        OtpVerify{
-//            id: otp
-//            anchors.rightMargin: 0
-//            anchors.bottomMargin: 0
-//            anchors.leftMargin: 0
-//            anchors.topMargin: 0
-//            vis: !auth.getOTPStatus() & !login.vis
-//            onGetOtpVal: {
-//              otp.otpVal = auth.otp;
-//             }
-//            onSetOtp: {
-//              auth.otp = otp.otpVal;
-//            }
-//           onVerifyButton: {
-//              auth.otpButton = true;
-//           }
-//           onBackButtonClicked: {
-//              login.vis = true;
-//              login.usrname=""
-//              login.passwrd=""
-//              vis = false;
-//          }
-//    }
+        OtpVerify{
+            id: otp
+            anchors.rightMargin: 0
+            anchors.bottomMargin: 0
+            anchors.leftMargin: 0
+            anchors.topMargin: 0
+            vis:!auth.getOTPStatus() & !login.vis
+            onGetOtpVal: {
+              otp.otpVal = auth.otp;
+             }
+            onSetOtp: {
+              auth.otp = otp.otpVal;
+            }
+           onVerifyButton: {
+              auth.otpButton = true;
+           }
+           onBackButtonClicked: {
+              login.vis = true;
+              login.usrname=""
+              login.passwrd=""
+              vis = false;
+          }
+    }
 
 //        NpntProcess{
 //            id: npnt

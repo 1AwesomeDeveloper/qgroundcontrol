@@ -42,8 +42,8 @@ Rectangle{
 
                    Text {
                        id: otptxt
-                       text: qsTr("Enter the OTP sent to your Registered Email")
-                       font.pixelSize: (rect1.width/25 + rect1.height/25 )/2
+                       text: qsTr("Enter the OTP sent to your Email")
+                       font.pixelSize: (rect1.width/30 + rect1.height/30)/2
                        font.bold: true
 
                    }
