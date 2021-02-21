@@ -56,85 +56,88 @@ ApplicationWindow {
 
         }
 
-        HomePage{
-            id: home
-            anchors.rightMargin: 0
-            anchors.bottomMargin: 0
-            anchors.leftMargin: 0
-            anchors.topMargin: 0
-             vis : false
-         }
+//        HomePage{
+//            id: home
+//            vis : true
+//         }
 
-        Loginpage{
-            id:login
-            anchors.rightMargin: 0
-            anchors.bottomMargin: 0
-            anchors.leftMargin: 0
-            anchors.topMargin: 0
-            vis: !auth.getLoginStatus()
+//        Loginpage{
+//            id:login
+//            anchors.rightMargin: 0
+//            anchors.bottomMargin: 0
+//            anchors.leftMargin: 0
+//            anchors.topMargin: 0
+//            vis: !auth.getLoginStatus()
 
-            onGetUsername: {
-                login.usrname = auth.userName;
-            }
-            onGetPassword: {
-                login.passwrd = auth.passWord;
-            }
-            onChangeUsername:{
-                auth.userName = login.usrname;
-            }
-            onChangePassword:{
-                auth.passWord = login.passwrd;
-            }
-            onLoginButton:{
-                auth.okButton = true;
-                mainWindow.pushPreventViewSwitch()
-            }
-            onFirmwarebtn: {
-                sjfirmware.vis = true
-                login.vis = false
-            }
+//            onGetUsername: {
+//                login.usrname = auth.userName;
+//            }
+//            onGetPassword: {
+//                login.passwrd = auth.passWord;
+//            }
+//            onChangeUsername:{
+//                auth.userName = login.usrname;
+//            }
+//            onChangePassword:{
+//                auth.passWord = login.passwrd;
+//            }
+//            onLoginButton:{
+//                auth.okButton = true;
+//                mainWindow.pushPreventViewSwitch()
+//            }
+//            onFirmwarebtn: {
+//                sjfirmware.vis = true
+//                login.vis = false
+//            }
 
-        }
+//        }
 
-        OtpVerify{
-            id: otp
-            anchors.rightMargin: 0
-              anchors.bottomMargin: 0
-              anchors.leftMargin: 0
-              anchors.topMargin: 0
-              vis: !auth.getOTPStatus() & !login.vis
-              onGetOtpVal: {
-                  otp.otpVal = auth.otp;
-              }
-              onSetOtp: {
-                  auth.otp = otp.otpVal;
-              }
-              onVerifyButton: {
-                  auth.otpButton = true;
-              }
-              onBackButtonClicked: {
-                  login.vis = true;
-                  login.usrname=""
-                  login.passwrd=""
-                  vis = false;
-              }
-        }
+//        OtpVerify{
+//            id: otp
+//            anchors.rightMargin: 0
+//            anchors.bottomMargin: 0
+//            anchors.leftMargin: 0
+//            anchors.topMargin: 0
+//            vis: !auth.getOTPStatus() & !login.vis
+//            onGetOtpVal: {
+//              otp.otpVal = auth.otp;
+//             }
+//            onSetOtp: {
+//              auth.otp = otp.otpVal;
+//            }
+//           onVerifyButton: {
+//              auth.otpButton = true;
+//           }
+//           onBackButtonClicked: {
+//              login.vis = true;
+//              login.usrname=""
+//              login.passwrd=""
+//              vis = false;
+//          }
+//    }
 
-        NpntProcess{
-            id: npnt
-            anchors.rightMargin: 0
-            anchors.bottomMargin: 0
-            anchors.leftMargin: 0
-            anchors.topMargin: 0
-            vis: false
-            onCompleteChanged: globals.npntComplete = true
+//        NpntProcess{
+//            id: npnt
+//            anchors.rightMargin: 0
+//            anchors.bottomMargin: 0
+//            anchors.leftMargin: 0
+//            anchors.topMargin: 0
+//            vis: false
+//            onCompleteChanged: globals.npntComplete = true
 
-        }
+//        }
 
-    SJfirmware{
-        id: sjfirmware
+//        PilotLogin{
+//            id:pilot
+//            vis: true
+//        }
 
-    }
+
+//    SJfirmware{
+//        id: sjfirmware
+//        vis: true
+
+//    }
 
     QtObject {
         id: firstRunPromptManager

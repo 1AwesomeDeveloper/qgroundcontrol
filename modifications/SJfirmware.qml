@@ -47,8 +47,8 @@ Rectangle{
     Rectangle{
                id: rect1
                visible: true
-               width:parent.width/3
-               height:parent.height/2
+               width:parent.width/2.5
+               height:parent.height/1.5
                anchors.centerIn: parent
                radius: 80
                color:"lightgrey"
@@ -72,7 +72,7 @@ Rectangle{
 
        ProgressBar {
            id:                     progressBar
-           width:                  parent.width - 50
+           width:                  parent.width - parent.width/10
            visible:                true
            anchors.centerIn:       parent
            anchors.verticalCenterOffset: 50

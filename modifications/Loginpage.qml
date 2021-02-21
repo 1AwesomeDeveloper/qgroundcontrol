@@ -2,8 +2,8 @@ import QtQuick 2.12
 import QtQuick.Window 2.12
 import QtQuick.Controls 2.0
 import QtQuick.Dialogs 1.1
-import QGroundControl 1.0
 
+import QGroundControl 1.0
 import QGroundControl.Controls      1.0
 import QGroundControl.FactSystem    1.0
 import QGroundControl.FactControls  1.0
@@ -21,7 +21,7 @@ Rectangle{
         property bool   _communicationLost: _activeVehicle ? _activeVehicle.vehicleLinkManager.communicationLost : false
         property string usrname
         property string passwrd
-        signal firmwarebtn()
+        //signal firmwarebtn()
         signal getUsername()
         signal getPassword()
         signal changeUsername(string a)
@@ -30,24 +30,11 @@ Rectangle{
         property bool vis:true
         visible: myrect.vis
 
-//        QGCFileDialog {
-//            id:                 customFirmwareDialog
-//            title:              qsTr("Select Firmware File")
-//            nameFilters:        [qsTr("Firmware Files (*.px4 *.apj *.bin *.ihx)"), qsTr("All Files (*)")]
-//            selectExisting:     true
-//            folder:             QGroundControl.settingsManager.appSettings.logSavePath
-//            onAcceptedForLoad: {
-//                controller.flashFirmwareUrl(file)
-//                close()
-//            }
-//        }
-//        Component.onCompleted: customFirmwareDialog.openForLoad();
-
 Rectangle{
            id: rect1
            visible: true
-           width:parent.width/3
-           height:parent.height/2
+           width:parent.width/2.5
+           height:parent.height/1.5
            anchors.centerIn: parent
            radius: 80
            color:"lightgrey"
@@ -57,13 +44,15 @@ Rectangle{
 
 
            Column{
-               spacing: 20
+               spacing: rect1.height/20
                anchors.centerIn: rect1
 
                Column{
                Text {
                    id: username
                    text: qsTr("Customer Email")
+                   font.pixelSize: (rect1.width/25 + rect1.height/25 )/2
+                   font.bold: true
 
                }
 
@@ -71,6 +60,9 @@ Rectangle{
                    id:customerusername
                    text: usrname
                    placeholderText: qsTr("Enter Email")
+                   width: rect1.width/2
+                   height:rect1.height/10
+                   anchors.topMargin: customerusername.height/2
                    onTextChanged:{
 
                        usrname = text
@@ -86,6 +78,8 @@ Rectangle{
                Text {
                    id: password
                    text: qsTr("Password")
+                   font.bold: true
+                   font.pixelSize: (rect1.width/25 + rect1.height/25 )/2
 
                }
 
@@ -94,6 +88,9 @@ Rectangle{
                    placeholderText: qsTr("Enter Password")
                    echoMode:"Password"
                    text: passwrd
+                   width: rect1.width/2
+                   height:rect1.height/10
+                   anchors.topMargin: customerusername.height/2
                    onTextChanged:{
                        passwrd = text
                        changePassword(text)
@@ -103,16 +100,37 @@ Rectangle{
            }
                }
 
-               Button{
+               Rectangle{
                    id:mybtn
-                   text: "Login"
-                   onClicked:{
-                       loginButton()
+                   width:customerusername.width/3
+                   height:customerusername.height
+                   color:"lightgray"
+                   visible: true
+                   border.color: "black"
+                   border.width: 1
+
+                   Text {
+                       id: text
+                       text: qsTr("Login")
+                       font.bold: true
+                       font.pixelSize: ((mybtn.width/5)+(mybtn.height/5))/2
+                       anchors.centerIn:mybtn
+                   }
+
+
+                   MouseArea{
+                       id:btnArea
+                       anchors.fill: mybtn
+                       hoverEnabled: true
+                       onClicked:{
+                           loginButton()
+
+                       }
+
                    }
 
                }
-
-       }
+    }
 }
 
 Image {
@@ -124,13 +142,13 @@ Image {
 
 }
 
-Button{
-    id:firmwareUpgradebutton
-    text: "Upgrade Firmware"
-    anchors.right: myrect.right
-    onClicked: firmwarebtn()
+//Button{
+//    id:firmwareUpgradebutton
+//    text: "Upgrade Firmware"
+//    anchors.right: myrect.right
+//    onClicked: firmwarebtn()
 
-}
+//}
 
 
 }

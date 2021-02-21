@@ -7,7 +7,17 @@ import QGroundControl 1.0
 import com.NPNT_CONTROL 1.0
 
  Rectangle{
-     id:myrect
+        id:myrect
+        property bool complete: false
+        property bool check1:false
+        property bool check2:false
+        property bool check3:false
+        property bool check4:false
+        property bool vis: false
+        anchors.fill: parent
+        color: "grey"
+        visible: myrect.vis
+        z:1
         Component.onCompleted: {
             //start NPNT process
             npntController.deviceConnected();
@@ -23,7 +33,6 @@ import com.NPNT_CONTROL 1.0
         function npntComplete(){
             return check1 & check2 & check3 & check4;
         }
-
         function resetChecks(){
             check1 = false;
             check2 = false;
@@ -31,21 +40,10 @@ import com.NPNT_CONTROL 1.0
             check4 = false;
         }
 
-        property bool complete: false
-        property bool check1:false
-        property bool check2:false
-        property bool check3:false
-        property bool check4:false
-        property bool vis: false
-        anchors.fill: parent
-        color: "grey"
-        visible: myrect.vis
-        z:1
-
     Rectangle{
-        id: rect2
-        width:parent.width/3
-        height:parent.height/2
+        id: rect1
+        width:parent.width/2.5
+        height:parent.height/1.5
         anchors.centerIn: parent
         radius: 80
         color:"lightgrey"
@@ -57,14 +55,17 @@ import com.NPNT_CONTROL 1.0
         }
 
         Column{
-
-            spacing: 20
-            anchors.centerIn: rect2
+            spacing: rect1.height/10
+            anchors.centerIn: rect1
 
            //START NPNT CHECKLIST
+            Column{
             Text {
                 id: init
-                text: qsTr("<h1>STARTING INIT PROCESS..<\h1>")
+                text: qsTr("STARTING INIT PROCESS..")
+                font.bold: true
+                font.pixelSize:(rect1.width/25 + rect1.height/25 )/2
+            }
             }
 
             Column{
@@ -72,26 +73,38 @@ import com.NPNT_CONTROL 1.0
                         id: c1
                         checked:myrect.check1
                         text: qsTr("Hardware Connected")
+                        font.pixelSize: (rect1.width/25 + rect1.height/25 )/2
                         checkable:false
+                        indicator.width:rect1.width/20
+                        indicator.height:rect1.height/20
 
                     }
                     CheckBox {
                         id:c2
                         checked: myrect.check2
                         text: qsTr("Check if Drone is Registered")
+                        font.pixelSize: (rect1.width/25 + rect1.height/25 )/2
                         checkable:false
+                        indicator.width:rect1.width/20
+                        indicator.height:rect1.height/20
                     }
                     CheckBox {
                         id:c3
                         checked: myrect.check3
                         text: qsTr("Check for Firmware Upgrades")
+                        font.pixelSize: (rect1.width/25 + rect1.height/25 )/2
                         checkable:false
+                        indicator.width:rect1.width/20
+                        indicator.height:rect1.height/20
                     }
                     CheckBox {
                         id:c4
                         checked: myrect.check4
                         text: qsTr("Starting Key Rotation")
                         checkable:false
+                        font.pixelSize: (rect1.width/25 + rect1.height/25 )/2
+                        indicator.width:rect1.width/20
+                        indicator.height:rect1.height/20
                         onCheckedChanged: {
                             if(npntComplete()){
                                 vis = false;
@@ -100,7 +113,6 @@ import com.NPNT_CONTROL 1.0
                             }
                         }
                     }
-
             }
 
         }

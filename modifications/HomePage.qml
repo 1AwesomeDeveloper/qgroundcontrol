@@ -27,8 +27,8 @@ Image {
 Rectangle {
     id: popup
     anchors.centerIn: parent
-    width: parent.width/4
-    height: parent.height/4
+    width: parent.width/2.5
+    height: parent.height/1.5
     focus: true
     radius:30
     visible: !_activeVehicle || _communicationLost
@@ -38,8 +38,10 @@ Rectangle {
 
     Text {
         id: text1
-        text: qsTr("<h2><b>Drone is not connected to QGC,<br> Please Turn on your Drone First !!!<\b><\h2>")
+        text: qsTr("Drone is not connected to QGC,<br> Please Turn on your Drone First !!!")
         anchors.centerIn: popup
+        font.bold: true
+        font.pixelSize:(popup.width/25 + popup.height/25 )/2
 
     }
 

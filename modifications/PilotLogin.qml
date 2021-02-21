@@ -24,33 +24,34 @@ Rectangle{
 Rectangle{
            id: rect1
            visible: true
-           width:parent.width/3
-           height:parent.height/2
+           width:parent.width/2.5
+           height:parent.height/1.5
            anchors.centerIn: parent
            radius: 80
            color:"lightgrey"
            border.color:"black"
            border.width: 3
 
-
-
            Column{
-               spacing: 20
+               spacing: rect1.height/20
                anchors.centerIn: rect1
 
                Column{
                Text {
                    id: username
                    text: qsTr("Remote-Pilot Email")
+                   font.pixelSize: (rect1.width/25 + rect1.height/25 )/2
+                   font.bold: true
 
                }
 
                TextField{
-                   id:customerusername
+                   id:pilotusername
                    text: usrname
                    placeholderText: qsTr("Enter Email")
+                   width: rect1.width/2
+                   height:rect1.height/10
                    onTextChanged:{
-
                        usrname = text
                        changeUsername(text);
                        getUsername()
@@ -64,14 +65,18 @@ Rectangle{
                Text {
                    id: password
                    text: qsTr("Password")
+                   font.bold: true
+                   font.pixelSize: (rect1.width/25 + rect1.height/25 )/2
 
                }
 
                TextField{
-                   id:customerpassword
+                   id:pilotpassword
                    placeholderText: qsTr("Enter Password")
                    echoMode:"Password"
                    text: passwrd
+                   width: rect1.width/2
+                   height:rect1.height/10
                    onTextChanged:{
                        passwrd = text
                        changePassword(text)
@@ -81,18 +86,42 @@ Rectangle{
            }
                }
 
-               Button{
-
+               Rectangle{
                    id:mybtn
-                   text: "Login"
-                   onClicked:{
-                       loginButton()
+                   width:pilotusername.width/3
+                   height:pilotusername.height
+                   color:"lightgray"
+                   visible: true
+                   anchors.centerIn:rect1
+                   anchors.verticalCenterOffset: rect1.height/2
+                   border.color: "black"
+                   border.width: 1
+
+                   Text {
+                       id: text
+                       text: qsTr("Login")
+                       font.bold: true
+                       font.pixelSize: ((mybtn.width/5)+(mybtn.height/5))/2
+                       anchors.centerIn:mybtn
+                   }
+
+
+                   MouseArea{
+                       id:btnArea
+                       anchors.fill: mybtn
+                       hoverEnabled: true
+                       onClicked:{
+                           loginButton()
+
+                       }
+
                    }
 
                }
 
+               }
+
        }
-}
 
 Image {
     id: logo
