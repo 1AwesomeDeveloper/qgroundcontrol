@@ -428,6 +428,8 @@ contains (DEFINES, QGC_ENABLE_PAIRING) {
 HEADERS += \
     modifications/customerdata.h \
     modifications/login.h \
+    modifications/sjloginpagecontroller.h \
+    modifications/sjotppagecontroller.h \
     modifications/sjpilotdata.h \
     modifications/sjpilotpage.h \
     sj_npntcontrol.h \
@@ -450,6 +452,8 @@ contains (DEFINES, QGC_ENABLE_PAIRING) {
 SOURCES += \
     modifications/customerdata.cpp \
     modifications/login.cpp \
+    modifications/sjloginpagecontroller.cpp \
+    modifications/sjotppagecontroller.cpp \
     modifications/sjpilotdata.cpp \
     modifications/sjpilotpage.cpp \
     sj_npntcontrol.cpp \

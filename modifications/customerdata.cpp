@@ -103,6 +103,8 @@ void CustomerData::clearData()
     authCode.clear();
     token.clear();
     tokenDroneReply.clear();
+    vehicleData.npntCheck = false;
+    vehicleData.vehicleSerialId.clear();
     //
 }
 
@@ -190,11 +192,11 @@ void CustomerData::readyRead()
     QJsonObject jsonObject = jsonResponse.object();
 
     if(jsonObject.find("error") != jsonObject.end()){
-        emit wrongDetails();
+        emit wrongDetails(replyStr);
         return;
     }
     if(jsonObject.find("loginToken") == jsonObject.end()){
-        emit wrongDetails();
+        emit wrongDetails(replyStr);
         return;
     }
     authCode.clear();
@@ -214,11 +216,11 @@ void CustomerData::readyReadOTP()
     qInfo() << replyStr;
     QJsonObject jsonObject = jsonResponse.object();
     if(jsonObject.find("error") != jsonObject.end()){
-        emit wrongOTP();
+        emit wrongOTP(replyStr);
         return;
     }
     if(jsonObject.find("accessToken") == jsonObject.end()){
-        emit wrongOTP();
+        emit wrongOTP(replyStr);
         return;
     }
     tokenDroneNo.clear();
@@ -307,5 +309,4 @@ void CustomerData::readyReadUploadKey()
 //    Q_UNUSED(scriptEngine)
 //    return getInstance();
 //}
-
 

@@ -113,6 +113,9 @@
 #include "customerdata.h"
 #include "sj_npntcontrol.h"
 #include "sjftpuploadbutton.h"
+#include "sjloginpagecontroller.h"
+#include "sjotppagecontroller.h"
+
 #if defined(QGC_ENABLE_PAIRING)
 #include "PairingManager.h"
 #endif
@@ -524,6 +527,8 @@ void QGCApplication::_initCommon()
     qmlRegisterType <Login>         ("com.Login", 1, 0, "Auth");
     qmlRegisterType <SJ_NPNTControl>         ("com.NPNT_CONTROL", 1, 0, "NpntControl");
     qmlRegisterType <SJFTPUploadButton>         ("com.SJFTPUploadButton", 1, 0, "SJFTPUploadController");
+    qmlRegisterType <SJLoginPageController>         ("SpaceJam", 1, 0, "SJLoginController");
+    qmlRegisterType <SJOTPPageController>         ("SpaceJam", 1, 0, "SJOTPController");
     //qmlRegisterSingletonType<CustomerData>   ("com.customerData", 1, 0, "Cust",singletonProvider);
 
 

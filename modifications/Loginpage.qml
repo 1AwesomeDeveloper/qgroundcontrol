@@ -10,6 +10,7 @@ import QGroundControl.FactControls  1.0
 import QGroundControl.Palette       1.0
 import QGroundControl.Controllers   1.0
 import QGroundControl.ScreenTools   1.0
+import SpaceJam 1.0
 
 Rectangle{
 
@@ -17,18 +18,15 @@ Rectangle{
         color:"grey"
         anchors.fill: parent
         z:1
-        property var    _activeVehicle:     QGroundControl.multiVehicleManager.activeVehicle
-        property bool   _communicationLost: _activeVehicle ? _activeVehicle.vehicleLinkManager.communicationLost : false
-        property string usrname
-        property string passwrd
-        //signal firmwarebtn()
-        signal getUsername()
-        signal getPassword()
-        signal changeUsername(string a)
-        signal changePassword(string b)
-        signal loginButton()
-        property bool vis:true
-        visible: myrect.vis
+        signal changePage(int page)
+        visible: true
+        SJLoginController{
+            id: controller
+            onLoginSuccessfull:{
+                changePage(2)
+            }
+
+        }
 
 Rectangle{
            id: rect1
@@ -58,18 +56,15 @@ Rectangle{
 
                TextField{
                    id:customerusername
-                   text: usrname
+                   text: controller.userName
                    placeholderText: qsTr("Enter Email")
                    width: rect1.width/2
                    height:rect1.height/10
                    anchors.topMargin: customerusername.height/2
                    onTextChanged:{
+                       controller.userName = customerusername.text
+                    }
 
-                       usrname = text
-                       changeUsername(text);
-                       getUsername()
-
-               }
                }
 
                }
@@ -87,14 +82,11 @@ Rectangle{
                    id:customerpassword
                    placeholderText: qsTr("Enter Password")
                    echoMode:"Password"
-                   text: passwrd
+                   text: controller.passWord
                    width: rect1.width/2
                    height:rect1.height/10
                    anchors.topMargin: customerusername.height/2
-                   onTextChanged:{
-                       passwrd = text
-                       changePassword(text)
-                       getPassword()    
+                   onTextChanged:{controller.passWord = customerpassword.text;
                    }
 
            }
@@ -123,7 +115,7 @@ Rectangle{
                        anchors.fill: mybtn
                        hoverEnabled: true
                        onClicked:{
-                           loginButton()
+                          controller.okButton = true;
 
                        }
 

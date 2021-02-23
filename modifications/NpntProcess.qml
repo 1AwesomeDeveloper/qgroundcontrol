@@ -8,7 +8,6 @@ import com.NPNT_CONTROL 1.0
 
  Rectangle{
         id:myrect
-        property bool complete: false
         property bool check1:false
         property bool check2:false
         property bool check3:false
@@ -16,7 +15,8 @@ import com.NPNT_CONTROL 1.0
         property bool vis: false
         anchors.fill: parent
         color: "grey"
-        visible: myrect.vis
+        signal changePage(int page)
+        visible: true
         z:1
         Component.onCompleted: {
             //start NPNT process
@@ -107,9 +107,8 @@ import com.NPNT_CONTROL 1.0
                         indicator.height:rect1.height/20
                         onCheckedChanged: {
                             if(npntComplete()){
-                                vis = false;
                                 resetChecks();
-                                complete = true;
+                                changePage(4);
                             }
                         }
                     }

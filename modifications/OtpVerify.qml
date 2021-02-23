@@ -5,22 +5,20 @@ import QtQuick.Dialogs 1.1
 import QtQuick.Layouts 1.1
 
 import QGroundControl 1.0
-
+import SpaceJam 1.0
 Rectangle{
-
-    property var    _activeVehicle:     QGroundControl.multiVehicleManager.activeVehicle
-    property bool   _communicationLost: _activeVehicle ? _activeVehicle.vehicleLinkManager.communicationLost : false
-    property bool vis: false
-    signal backButtonClicked()
-    property string otpVal
-    signal getOtpVal()
-    signal setOtp(string a)
-    signal verifyButton()
     id:myrect
     anchors.fill: parent
     color: "grey"
     z:1
-    visible: myrect.vis
+    visible: true
+    signal changePage(int page)
+    SJOTPController{
+        id: controller
+        onOtpSuccessfull: {
+            changePage(3);
+        }
+    }
 
     Rectangle{
                id: rect1
@@ -54,15 +52,13 @@ Rectangle{
                    anchors.horizontalCenter: parent.horizontalCenter
                    TextField{
                        id:otpedit
-                       text: otpVal
+                       text: controller.otp
                        placeholderText: qsTr("Enter OTP")
                        width: rect1.width/2
                        height:rect1.height/10
                        anchors.topMargin: otptxt.height/2
                        onTextChanged: {
-                               otpVal = text;
-                               setOtp(text);
-                               getOtpVal();
+                               controller.otp = otpedit.text;
                        }
                    }
 
@@ -99,7 +95,7 @@ Rectangle{
                                    anchors.fill: mybtn1
                                    hoverEnabled: true
                                    onClicked:{
-                                       verifyButton()
+                                      controller.otpButton = true;
 
                                    }
 

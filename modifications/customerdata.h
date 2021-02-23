@@ -28,9 +28,9 @@ public:
 
 signals:
     void correctDetails();
-    void wrongDetails();
+    void wrongDetails(QString error);
     void correctOTP();
-    void wrongOTP();
+    void wrongOTP(QString error);
     void droneRegistered();
     void droneNotRegistered();
     //...............Edited..............//
