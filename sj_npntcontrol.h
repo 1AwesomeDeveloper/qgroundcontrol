@@ -2,6 +2,7 @@
 #define SJ_NPNTCONTROL_H
 
 #include <QObject>
+#include <QMessageBox>
 #include "sjfirmwarecontrol.h"
 #include "sjkeyrotation.h"
 #include "QGCApplication.h"
@@ -17,10 +18,12 @@ signals:
     void check2();
     void check3();
     void check4();
+    void firmwareUpgradeInit();
 
 public slots:
     void boardIsRegistered();
     void boardNotRegistered();
+
     Q_INVOKABLE bool deviceConnected();
 private slots:
 
@@ -29,12 +32,12 @@ private slots:
     bool keyRotated();
 
     void firmwareOK();
-    void firmwareUpgradeRequired();
+    void firmwareUpgradeRequired(bool res);
 
     void keyRotatedOK();
     void KeyRotateFailed();
 
-
+    int ErrorMessageBox(QString errorMessage);
 private:
     SJFirmwareControl* m_firmwareController;
     SJKeyRotation* m_keyController;

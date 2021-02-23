@@ -63,8 +63,8 @@ void SJLoginPageController::checkDataBase(bool okButton)
 void SJLoginPageController::LoginSuccessful()
 {
     checkNow = false;
-    //m_userName.clear();
-    //m_passWord.clear();
+    m_userName.clear();
+    m_passWord.clear();
     changeLoginStatus(true);
     emit userNameChanged();
     emit passWordChanged();

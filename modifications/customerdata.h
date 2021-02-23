@@ -37,7 +37,7 @@ signals:
         void loggedOutSuccessfully();
         void loggedOutFailed();
     //...................................//
-    void getFirmwareInfoFailed();
+    void getFirmwareInfoFailed(bool res);
     void getFirmwareInfoSuccessfull();
 
     void keyUploadFailed();

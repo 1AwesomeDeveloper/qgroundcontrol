@@ -192,7 +192,7 @@ void CustomerData::readyRead()
     QJsonObject jsonObject = jsonResponse.object();
 
     if(jsonObject.find("error") != jsonObject.end()){
-        emit wrongDetails(replyStr);
+        emit wrongDetails(jsonObject["error"].toString());
         return;
     }
     if(jsonObject.find("loginToken") == jsonObject.end()){
@@ -216,7 +216,7 @@ void CustomerData::readyReadOTP()
     qInfo() << replyStr;
     QJsonObject jsonObject = jsonResponse.object();
     if(jsonObject.find("error") != jsonObject.end()){
-        emit wrongOTP(replyStr);
+        emit wrongOTP(jsonObject["error"].toString());
         return;
     }
     if(jsonObject.find("accessToken") == jsonObject.end()){
@@ -276,11 +276,22 @@ void CustomerData::readyReadGetLatestFirmwareInfo()
     QJsonObject jsonObject = jsonResponse.object();
     // response is parsed
     if(jsonObject.find("error") != jsonObject.end()){
-        emit getFirmwareInfoFailed();
+        emit getFirmwareInfoFailed(false);
     }
     else{
-        //qgcApp()->toolbox()->multiVehicleManager()->activeVehicle()->versionCompare();
-        emit getFirmwareInfoSuccessfull();
+        QString latestVersion = jsonObject["version"].toString(), temp;
+        int version[3] = {0}, idx=0;
+        for(auto c: latestVersion){
+            if(c.digitValue() == -1) continue;
+            if(c == '.') idx++;
+            else if(idx < 3){
+                version[idx] *= 10;
+                version[idx] += c.digitValue();
+            }
+        }
+        int res = qgcApp()->toolbox()->multiVehicleManager()->activeVehicle()->versionCompare(version[0], version[1], version[2]);
+        if(res!=0) emit getFirmwareInfoFailed(true);
+        else emit getFirmwareInfoSuccessfull();
     }
 }
 

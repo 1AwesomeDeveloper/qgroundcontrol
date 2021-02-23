@@ -18,7 +18,7 @@ SJ_NPNTControl::SJ_NPNTControl(QObject *parent) : QObject(parent)
 
     connect(cust    , SIGNAL(droneNotRegistered())        , this, SLOT(boardNotRegistered())        );
     connect(cust    , SIGNAL(droneRegistered())           , this, SLOT(boardIsRegistered())         );
-    connect(cust    , SIGNAL(getFirmwareInfoFailed())     , this, SLOT(firmwareUpgradeRequired())   );
+    connect(cust    , &CustomerData::getFirmwareInfoFailed     , this, &SJ_NPNTControl::firmwareUpgradeRequired  );
     connect(cust    , SIGNAL(getFirmwareInfoSuccessfull()), this, SLOT(firmwareOK())                );
     connect(cust    , SIGNAL(keyUploadFailed())           , this, SLOT(KeyRotateFailed())   );
     connect(cust    , SIGNAL(keyUploadSuccessful())       , this, SLOT(keyRotatedOK())                );
@@ -70,9 +70,23 @@ void SJ_NPNTControl::firmwareOK()
     keyRotated();
 }
 
-void SJ_NPNTControl::firmwareUpgradeRequired()
+void SJ_NPNTControl::firmwareUpgradeRequired(bool res)
 {
     timer3->stop();
+    if(res){
+        int RES = ErrorMessageBox("!Firmware is not Updated!\n"
+                        "\n"
+                        "Would You like to Upgrade firmware Now?");
+        switch (RES) {
+            case QMessageBox::Ok:{
+                emit firmwareUpgradeInit();
+                break;
+            }
+            case QMessageBox::Cancel:{
+                break;
+            }
+        }
+    }
 }
 
 void SJ_NPNTControl::keyRotatedOK()
@@ -85,6 +99,16 @@ void SJ_NPNTControl::KeyRotateFailed()
 {
     keyRotating = false;
     return;
+}
+
+int SJ_NPNTControl::ErrorMessageBox(QString errorMessage)
+{
+    QMessageBox msgBox;
+    msgBox.setText("Error: ");
+    msgBox.setInformativeText(errorMessage);
+    msgBox.setStandardButtons(QMessageBox::Cancel | QMessageBox::Ok);
+    msgBox.setDefaultButton(QMessageBox::Ok);
+    return msgBox.exec();
 }
 
 void SJ_NPNTControl::boardIsRegistered()

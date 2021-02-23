@@ -28,6 +28,9 @@ import com.NPNT_CONTROL 1.0
             onCheck2: myrect.check2 = true;
             onCheck3: myrect.check3 = true;
             onCheck4: myrect.check4 = true;
+            onFirmwareUpgradeInit: {
+                changePage(4);
+            }
 
         }
         function npntComplete(){
@@ -108,7 +111,7 @@ import com.NPNT_CONTROL 1.0
                         onCheckedChanged: {
                             if(npntComplete()){
                                 resetChecks();
-                                changePage(4);
+                                changePage(5);
                             }
                         }
                     }

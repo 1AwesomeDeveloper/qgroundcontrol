@@ -60,11 +60,7 @@ ApplicationWindow {
 //        }
 
 
-//    SJfirmware{
-//        id: sjfirmware
-//        vis: true
 
-//    }
 
 
             Component{
@@ -84,6 +80,14 @@ ApplicationWindow {
                 }
             }
 
+            Component{
+                id: firmwareUpgrade
+                SJfirmware{
+                    id: sjfirmware
+                    vis: true
+                }
+            }
+
             Loader {
                 id: sjloader
                 anchors.fill: parent
@@ -99,7 +103,8 @@ ApplicationWindow {
                             case 1: sjloader.sourceComponent = login; break;
                             case 2: sjloader.sourceComponent = otp; break;
                             case 3: sjloader.sourceComponent = npnt; break;
-                            case 4: sjloader.visible = false; break;
+                            case 4: sjloader.sourceComponent = firmwareUpgrade; break;
+                            case 5: sjloader.visible = false;
                             default: sjloader.sourceComponent = login;
                         }
                     }
