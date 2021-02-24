@@ -10,11 +10,14 @@ public:
     explicit SJFirmwareControl(QObject *parent = nullptr);
 
 signals:
-
+    void firmwareReady(QString path);
 
 public slots:
-    bool getLatestFirmwareInfo(QString m_url);
+    Q_INVOKABLE bool getLatestFirmware();
 
+private slots:
+    void DownloadFailed(QString error);
+    void DownloadSuccessfull(QString path);
 
 private:
 

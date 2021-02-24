@@ -1,12 +1,12 @@
 #include "sj_npntcontrol.h"
 
+
 SJ_NPNTControl::SJ_NPNTControl(QObject *parent) : QObject(parent)
 {
     keyRotating = false;
-    m_firmwareController    = new SJFirmwareControl();
     m_keyController         = new SJKeyRotation();
     cust                    = qgcApp()->getCust();
-    m_url                   = "https://drone-management-api-ankit1998.herokuapp.com/customer";
+    m_url                   = qgcApp()->getCust()->getURL();
     timer1                  = new QTimer(this);
     timer2                  = new QTimer(this);
     timer3                  = new QTimer(this);
@@ -22,12 +22,14 @@ SJ_NPNTControl::SJ_NPNTControl(QObject *parent) : QObject(parent)
     connect(cust    , SIGNAL(getFirmwareInfoSuccessfull()), this, SLOT(firmwareOK())                );
     connect(cust    , SIGNAL(keyUploadFailed())           , this, SLOT(KeyRotateFailed())   );
     connect(cust    , SIGNAL(keyUploadSuccessful())       , this, SLOT(keyRotatedOK())                );
+
 }
 
 bool SJ_NPNTControl::deviceConnected()
 {
     if(!qgcApp()->toolbox()->multiVehicleManager()->activeVehicleAvailable()){
         // No active Board Connected
+        qInfo() << "Trying To find the board";
         timer1->start(500);
         return false;
     }
@@ -47,7 +49,7 @@ bool SJ_NPNTControl::boardRegistered()
 
 bool SJ_NPNTControl::firmwareCheck()
 {
-    m_firmwareController->getLatestFirmwareInfo(m_url);
+    qgcApp()->getCust()->getLatestFirmwareInfo(m_url+"/latestFirmwareVersion");
     timer3->start(2000);
     return true;
 }
@@ -72,6 +74,8 @@ void SJ_NPNTControl::firmwareOK()
 
 void SJ_NPNTControl::firmwareUpgradeRequired(bool res)
 {
+    m_firmwareController = new SJFirmwareControl();
+    //m_firmwareController->getLatestFirmware(m_url);
     timer3->stop();
     if(res){
         int RES = ErrorMessageBox("!Firmware is not Updated!\n"
@@ -122,5 +126,6 @@ void SJ_NPNTControl::boardIsRegistered()
 void SJ_NPNTControl::boardNotRegistered()
 {
     timer2->stop();
+    ErrorMessageBox("Your Drone is not Registered");
     // emit signal or dialog box popup to inform to try different board
 }

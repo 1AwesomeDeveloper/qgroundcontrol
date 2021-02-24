@@ -115,6 +115,7 @@
 #include "sjftpuploadbutton.h"
 #include "sjloginpagecontroller.h"
 #include "sjotppagecontroller.h"
+#include "sjfirmwarecontrol.h"
 
 #if defined(QGC_ENABLE_PAIRING)
 #include "PairingManager.h"
@@ -529,6 +530,7 @@ void QGCApplication::_initCommon()
     qmlRegisterType <SJFTPUploadButton>         ("com.SJFTPUploadButton", 1, 0, "SJFTPUploadController");
     qmlRegisterType <SJLoginPageController>         ("SpaceJam", 1, 0, "SJLoginController");
     qmlRegisterType <SJOTPPageController>         ("SpaceJam", 1, 0, "SJOTPController");
+    qmlRegisterType <SJFirmwareControl>         ("SpaceJam", 1, 0, "SJFirmwareController");
     //qmlRegisterSingletonType<CustomerData>   ("com.customerData", 1, 0, "Cust",singletonProvider);
 
 

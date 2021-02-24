@@ -3,7 +3,7 @@
 #include "sjotppagecontroller.h"
 
 SJOTPPageController::SJOTPPageController(QObject *parent): QObject(parent){
-    myURL = "https://drone-management-api-ankit1998.herokuapp.com/customer";
+    myURL = qgcApp()->getCust()->getURL();
     qgcApp()->toolbox()->linkManager()->shutdown();
     OTPStatus   = false;
     connect(qgcApp()->getCust(), &CustomerData::correctOTP,             this, &SJOTPPageController::OTPSuccessful);
@@ -38,7 +38,7 @@ void SJOTPPageController::checkOTP(bool otpButton)
         s.append("{\"otp\":\"");
         s.append(m_otp);
         s.append("\"}");
-        qgcApp()->getCust()->postOTP(myURL+"/otpValidation", s);
+        qgcApp()->getCust()->postOTP(myURL+"/loginOtp", s);
 
 
         emit verifyOTP();

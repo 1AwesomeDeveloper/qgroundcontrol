@@ -7,12 +7,18 @@
 #include "sjkeyrotation.h"
 #include "QGCApplication.h"
 #include "customerdata.h"
+#include "LinkManager.h"
 
 class SJ_NPNTControl : public QObject
 {
     Q_OBJECT
 public:
     explicit SJ_NPNTControl(QObject *parent = nullptr);
+    Q_INVOKABLE void restartConnection(){
+        qgcApp()->getCust()->clearVehicleData();
+        qgcApp()->toolbox()->linkManager()->shutdown();
+        qgcApp()->toolbox()->linkManager()->restart();
+    }
 signals:
     void check1();
     void check2();

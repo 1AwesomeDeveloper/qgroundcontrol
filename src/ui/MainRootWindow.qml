@@ -46,70 +46,53 @@ ApplicationWindow {
         firstRunPromptManager.nextPrompt()
     }
 
+    Component{
+        id:login
+        Loginpage{}
+    }
 
-//        HomePage{
-//            id: home
-//            vis : true
-//         }
+    Component{
+        id: otp
+        OtpVerify{
+        }
+    }
 
+    Component{
+        id: npnt
+        NpntProcess{
+        }
+    }
 
+    Component{
+        id: firmwareUpgrade
+        SJfirmware{
+            id: sjfirmware
+            vis: true
+        }
+    }
 
-//        PilotLogin{
-//            id:pilot
-//            vis: true
-//        }
-
-
-
-
-
-            Component{
-                id:login
-                Loginpage{}
-            }
-
-            Component{
-                id: otp
-                OtpVerify{
+    Loader {
+        id: sjloader
+        anchors.fill: parent
+        sourceComponent: login
+        visible: true
+        active: visible
+        z:1
+        Connections {
+            target: sjloader.item
+            onChangePage: {
+                switch(page)
+                {
+                    case  1: sjloader.sourceComponent = login; break;
+                    case  2: sjloader.sourceComponent = otp; break;
+                    case  3: sjloader.sourceComponent = npnt; break;
+                    case  4: sjloader.sourceComponent = firmwareUpgrade; break;
+                    case  5: sjloader.visible = false; break;
+                    default: sjloader.sourceComponent = login;
                 }
             }
-
-            Component{
-                id: npnt
-                NpntProcess{
-                }
-            }
-
-            Component{
-                id: firmwareUpgrade
-                SJfirmware{
-                    id: sjfirmware
-                    vis: true
-                }
-            }
-
-            Loader {
-                id: sjloader
-                anchors.fill: parent
-                sourceComponent: login
-                visible: true
-                active: visible
-                z:1
-                Connections {
-                    target: sjloader.item
-                    onChangePage: {
-                        switch(page)
-                        {
-                            case 1: sjloader.sourceComponent = login; break;
-                            case 2: sjloader.sourceComponent = otp; break;
-                            case 3: sjloader.sourceComponent = npnt; break;
-                            case 4: sjloader.sourceComponent = firmwareUpgrade; break;
-                            case 5: sjloader.visible = false;
-                            default: sjloader.sourceComponent = login;
-                        }
-                    }
-                }
-            }
+        }
+    }
 
 
     QtObject {

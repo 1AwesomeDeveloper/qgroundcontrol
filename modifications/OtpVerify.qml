@@ -126,7 +126,7 @@ Rectangle{
                                    anchors.fill: mybtn2
                                    hoverEnabled: true
                                    onClicked:{
-                                       backButtonClicked()
+                                       changePage(1);
 
                                    }
 

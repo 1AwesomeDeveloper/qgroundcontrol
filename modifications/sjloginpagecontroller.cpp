@@ -3,8 +3,9 @@
 
 SJLoginPageController::SJLoginPageController(QObject *parent): QObject(parent){
     mutex = false;
-    m_userName = "user_namer";
-    myURL = "https://drone-management-api-ankit1998.herokuapp.com/customer";
+    m_userName = "kshitijgoyal5@gmail.com";
+    m_passWord = "Abc@12345";
+    myURL = qgcApp()->getCust()->getURL();
     qgcApp()->toolbox()->linkManager()->shutdown();
     loginStatus = false;
     connect(qgcApp()->getCust(), &CustomerData::correctDetails,         this, &SJLoginPageController::LoginSuccessful);

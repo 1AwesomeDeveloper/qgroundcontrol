@@ -16,10 +16,12 @@ import com.NPNT_CONTROL 1.0
         anchors.fill: parent
         color: "grey"
         signal changePage(int page)
+        signal npntComplete()
         visible: true
         z:1
         Component.onCompleted: {
             //start NPNT process
+            npntController.restartConnection();
             npntController.deviceConnected();
         }
         NpntControl{
@@ -32,9 +34,6 @@ import com.NPNT_CONTROL 1.0
                 changePage(4);
             }
 
-        }
-        function npntComplete(){
-            return check1 & check2 & check3 & check4;
         }
         function resetChecks(){
             check1 = false;
@@ -110,8 +109,9 @@ import com.NPNT_CONTROL 1.0
                         indicator.height:rect1.height/20
                         onCheckedChanged: {
                             if(npntComplete()){
-                                resetChecks();
+                                //resetChecks();
                                 changePage(5);
+                                npntComplete();
                             }
                         }
                     }
