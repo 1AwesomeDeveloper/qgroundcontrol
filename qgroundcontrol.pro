@@ -431,7 +431,7 @@ HEADERS += \
     modifications/sjloginpagecontroller.h \
     modifications/sjotppagecontroller.h \
     modifications/sjpilotdata.h \
-    modifications/sjpilotpage.h \
+    modifications/sjpilotpagecontroller.h \
     sj_npntcontrol.h \
     sjfirmwarecontrol.h \
     sjftpuploadbutton.h \
@@ -455,7 +455,7 @@ SOURCES += \
     modifications/sjloginpagecontroller.cpp \
     modifications/sjotppagecontroller.cpp \
     modifications/sjpilotdata.cpp \
-    modifications/sjpilotpage.cpp \
+    modifications/sjpilotpagecontroller.cpp \
     sj_npntcontrol.cpp \
     sjfirmwarecontrol.cpp \
     sjftpuploadbutton.cpp \

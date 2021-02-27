@@ -51,6 +51,7 @@ Rectangle{
             _path = path
             controller.startBoardSearch()
         }
+
     }
 
     Rectangle{
@@ -149,9 +150,9 @@ Rectangle{
         }
 
         onShowFirmwareSelectDlg: {
-            console.log(_path)
-            changePage(3)
-            //controller.flashFirmwareUrl(_path)
+            console.log("Firmware path: " + _path)
+            //changePage(3)
+            controller.flashFirmwareUrl(_path)
         }
 
         onEraseStarted:{
@@ -166,6 +167,7 @@ Rectangle{
         onFlashComplete: {
             display.append("")
             display.append("Flash Complete!")
+            downloadController.deleteFirmwareFile(_path)
             changePage(3)
         }
     }

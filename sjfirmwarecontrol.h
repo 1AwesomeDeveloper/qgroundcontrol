@@ -14,6 +14,7 @@ signals:
 
 public slots:
     Q_INVOKABLE bool getLatestFirmware();
+    Q_INVOKABLE void deleteFirmwareFile(QString path);
 
 private slots:
     void DownloadFailed(QString error);

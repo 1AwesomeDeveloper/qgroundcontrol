@@ -15,8 +15,9 @@
 #include <QJsonArray>
 #include <iostream>
 #include "Vehicle.h"
+#include "sjpilotdata.h"
 
-#define SERVER_URL "https://asroot-drone.herokuapp.com/customer"
+#define SERVER_URL "https://asroot-drone.herokuapp.com"
 
 class CustomerData: public QObject
 {
@@ -29,6 +30,7 @@ public:
     bool vehicleIDChanged(QString vehicleID);
     bool getNpntStatus(){return vehicleData.npntCheck;}
     QString getURL(){return serverURL;}
+    SJPilotData* getPilot(){return pilot;}
 
 signals:
     void correctDetails();
@@ -85,9 +87,11 @@ private:
     {
         QString vehicleSerialId;
         QString modalID;
+        QString vehicleServerID;
         bool npntCheck;
     } vehicleData;
 
+    SJPilotData* pilot;
     QNetworkAccessManager manager;
     QString serverURL;
     QByteArray authCode;

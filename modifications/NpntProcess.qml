@@ -23,6 +23,7 @@ import com.NPNT_CONTROL 1.0
             //start NPNT process
             npntController.restartConnection();
             npntController.deviceConnected();
+
         }
         NpntControl{
             id : npntController;
@@ -108,12 +109,22 @@ import com.NPNT_CONTROL 1.0
                         indicator.width:rect1.width/20
                         indicator.height:rect1.height/20
                         onCheckedChanged: {
-                            if(npntComplete()){
+                            if(checkable){
                                 //resetChecks();
-                                changePage(5);
                                 npntComplete();
+                                tmr.start();
                             }
                         }
+                    }
+                    Timer{
+                        id: tmr
+                        interval: 2000
+                        running: false
+                        repeat: false
+                        onTriggered: {
+                            myrect.changePage(5);
+                        }
+
                     }
             }
 

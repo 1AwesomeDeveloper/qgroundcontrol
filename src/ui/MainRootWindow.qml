@@ -60,6 +60,9 @@ ApplicationWindow {
     Component{
         id: npnt
         NpntProcess{
+            onNpntComplete: {
+                globals.npntComplete = true;
+            }
         }
     }
 
@@ -68,6 +71,12 @@ ApplicationWindow {
         SJfirmware{
             id: sjfirmware
             vis: true
+        }
+    }
+
+    Component{
+        id: pilotPage
+        PilotLogin{
         }
     }
 
@@ -87,9 +96,17 @@ ApplicationWindow {
                     case  2: sjloader.sourceComponent = otp; break;
                     case  3: sjloader.sourceComponent = npnt; break;
                     case  4: sjloader.sourceComponent = firmwareUpgrade; break;
-                    case  5: sjloader.visible = false; break;
+                    case  5: sjloader.sourceComponent = pilotPage; break;
+                    case  6: sjloader.visible = false; break;
                     default: sjloader.sourceComponent = login;
                 }
+                if(page > 2){
+                    globals.customerLogin = true;
+                }
+                if(page == 4){
+                    globals.firmwareUpgrading = true;
+                }
+                else globals.firmwareUpgrading = false;
             }
         }
     }
@@ -131,6 +148,8 @@ ApplicationWindow {
 
     QtObject {
         id: globals
+        property bool               customerLogin:                  false
+        property bool               firmwareUpgrading:              false
         property bool               npntComplete
         readonly property var       activeVehicle:                  QGroundControl.multiVehicleManager.activeVehicle
         readonly property real      defaultTextHeight:              ScreenTools.defaultFontPixelHeight
@@ -140,6 +159,13 @@ ApplicationWindow {
 
         property var                planMasterControllerPlanView:   null
         property var                currentPlanMissionItem:         planMasterControllerPlanView ? planMasterControllerPlanView.missionController.currentPlanViewItem : null
+        onActiveVehicleChanged: {
+            if(customerLogin && !activeVehicle && !firmwareUpgrading){
+                sjloader.visible = false
+                sjloader.sourceComponent = npnt
+                sjloader.visible = true
+            }
+        }
     }
 
     /// Default color palette used throughout the UI

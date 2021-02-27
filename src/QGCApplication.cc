@@ -116,6 +116,7 @@
 #include "sjloginpagecontroller.h"
 #include "sjotppagecontroller.h"
 #include "sjfirmwarecontrol.h"
+#include "sjpilotpagecontroller.h"
 
 #if defined(QGC_ENABLE_PAIRING)
 #include "PairingManager.h"
@@ -531,6 +532,7 @@ void QGCApplication::_initCommon()
     qmlRegisterType <SJLoginPageController>         ("SpaceJam", 1, 0, "SJLoginController");
     qmlRegisterType <SJOTPPageController>         ("SpaceJam", 1, 0, "SJOTPController");
     qmlRegisterType <SJFirmwareControl>         ("SpaceJam", 1, 0, "SJFirmwareController");
+    qmlRegisterType <SJPilotPageController>         ("SpaceJam", 1, 0, "SJPilotPageController");
     //qmlRegisterSingletonType<CustomerData>   ("com.customerData", 1, 0, "Cust",singletonProvider);
 
 

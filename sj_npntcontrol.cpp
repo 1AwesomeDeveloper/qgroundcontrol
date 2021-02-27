@@ -16,8 +16,9 @@ SJ_NPNTControl::SJ_NPNTControl(QObject *parent) : QObject(parent)
     connect(timer3  , SIGNAL(timeout())                  , this, SLOT(firmwareCheck())           );
     //connect(timer4  , SIGNAL(timeout())                  , this, SLOT(boardRegistered())         );
 
-    connect(cust    , SIGNAL(droneNotRegistered())        , this, SLOT(boardNotRegistered())        );
-    connect(cust    , SIGNAL(droneRegistered())           , this, SLOT(boardIsRegistered())         );
+    connect(cust, SIGNAL(droneNotRegistered()), this, SLOT(boardNotRegistered()));
+    connect(cust, SIGNAL(droneRegistered()), this, SLOT(boardIsRegistered()));
+
     connect(cust    , &CustomerData::getFirmwareInfoFailed     , this, &SJ_NPNTControl::firmwareUpgradeRequired  );
     connect(cust    , SIGNAL(getFirmwareInfoSuccessfull()), this, SLOT(firmwareOK())                );
     connect(cust    , SIGNAL(keyUploadFailed())           , this, SLOT(KeyRotateFailed())   );
@@ -87,6 +88,8 @@ void SJ_NPNTControl::firmwareUpgradeRequired(bool res)
                 break;
             }
             case QMessageBox::Cancel:{
+                emit check3();
+                keyRotated();
                 break;
             }
         }

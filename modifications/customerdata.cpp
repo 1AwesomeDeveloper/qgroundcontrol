@@ -12,7 +12,8 @@
 CustomerData::CustomerData(QObject* parent): QObject(parent)
 
 {
-    serverURL = SERVER_URL;
+    serverURL = QString(SERVER_URL) + "/customer";
+    pilot = new SJPilotData(QString(SERVER_URL) + "/pilot");
     loggedIN = false;
     droneStatusCheck = false;
 }
@@ -155,13 +156,13 @@ void CustomerData::uploadKey(QString location, QString pathOfKey)
 
         multiPart->append(imagePart);
 
-        QUrlQuery params;
-        //UNDER CONSTRUCTION
-            QString _id = this->vehicleData.vehicleSerialId;
-            params.addQueryItem("id", _id);
-        //
-        QUrl url(location);
-        url.setQuery(params.query());
+//        QUrlQuery params;
+//        //UNDER CONSTRUCTION
+//            QString _id = this->vehicleData.vehicleSerialId;
+//            params.addQueryItem("id", _id);
+//        //
+        QUrl url(location + "/" + vehicleData.vehicleServerID);
+//        url.setQuery(params.query());
 
         QNetworkRequest request(url);
 
@@ -183,7 +184,7 @@ void CustomerData::firmwareDownload(QString location)
     request.setHeader(QNetworkRequest::ContentTypeHeader , "application/json");
     request.setRawHeader("auth",tokenDroneNo);
     QNetworkReply* reply = manager.get(request);
-    connect(reply,&QNetworkReply::readyRead, this, &CustomerData::readyReadDownload);
+    connect(reply,&QNetworkReply::finished, this, &CustomerData::readyReadDownload);
 }
 
 
@@ -250,12 +251,15 @@ void CustomerData::readyReadDroneNo()
     if(jsonObject.find("error") != jsonObject.end()){
             emit droneNotRegistered();
     }
-    if(jsonObject.find("modalId") != jsonObject.end()){
+    if(jsonObject.find("modalId") != jsonObject.end() && jsonObject.find("id") != jsonObject.end()){
         vehicleData.modalID.clear();
+        vehicleData.vehicleServerID.clear();
+        vehicleData.vehicleServerID = jsonObject["id"].toString();
         vehicleData.modalID = jsonObject["modalId"].toString();
             droneStatusCheck = true;
             emit droneRegistered();
      }
+    else emit droneNotRegistered();
 
 }
 
@@ -341,22 +345,25 @@ void CustomerData::readyReadDownload()
 
         else
         {
-//            qDebug() << "1) " << reply->header(QNetworkRequest::ContentTypeHeader).toString();
-//            qDebug() << "2) " << reply->header(QNetworkRequest::LastModifiedHeader).toDateTime().toString();
-//            qDebug() << "3) " << reply->header(QNetworkRequest::ContentLengthHeader).toULongLong();
-//            qDebug() << "4) " << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-//            qDebug() << "5) " << reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
+            qDebug() << "1) " << reply->header(QNetworkRequest::ContentTypeHeader).toString();
+            qDebug() << "2) " << reply->header(QNetworkRequest::LastModifiedHeader).toDateTime().toString();
+            qDebug() << "3) " << reply->header(QNetworkRequest::ContentLengthHeader).toULongLong();
+            qDebug() << "4) " << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+            qDebug() << "5) " << reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
 
-            QString path(QStandardPaths::writableLocation(QStandardPaths::TempLocation));
+            QString path(QStandardPaths::writableLocation(QStandardPaths::TempLocation)), path2;
             path += "/space_jam_custom_firmware.bin";
+            path2 = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation)+"/space_jam_custom_firmware.bin";
             QFile file(path);
-            if(file.open(QFile::WriteOnly | QFile::Truncate))
+            if(file.open(QFile::WriteOnly | QIODevice::Truncate))
             {
                 qDebug() <<"The text file is open";
                 file.write(reply->readAll());
-                file.flush();
                 file.close();
-                emit firmwareDownloadComplete(path);
+                QDir dir;
+                dir.rename(path, path2);
+                emit firmwareDownloadComplete(path2);
+
             }
             else{
                 qDebug() << "file not open";
