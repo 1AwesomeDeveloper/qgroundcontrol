@@ -15,6 +15,10 @@
 #include <QJsonArray>
 #include <iostream>
 #include "Vehicle.h"
+#include "sjpilotdata.h"
+
+#define SERVER_URL "https://asroot-drone.herokuapp.com"
+
 class CustomerData: public QObject
 {
     Q_OBJECT
@@ -25,23 +29,30 @@ public:
     bool DroneStatusCheck(){return droneStatusCheck;}
     bool vehicleIDChanged(QString vehicleID);
     bool getNpntStatus(){return vehicleData.npntCheck;}
+    QString getURL(){return serverURL;}
+    SJPilotData* getPilot(){return pilot;}
 
 signals:
     void correctDetails();
-    void wrongDetails();
+    void wrongDetails(QString error);
+
     void correctOTP();
-    void wrongOTP();
+    void wrongOTP(QString error);
+
     void droneRegistered();
     void droneNotRegistered();
-    //...............Edited..............//
-        void loggedOutSuccessfully();
-        void loggedOutFailed();
-    //...................................//
-    void getFirmwareInfoFailed();
+
+    void loggedOutSuccessfully();
+    void loggedOutFailed();
+
+    void getFirmwareInfoFailed(bool res);
     void getFirmwareInfoSuccessfull();
 
     void keyUploadFailed();
     void keyUploadSuccessful();
+
+    void firmwareDownloadComplete(QString path);
+    void firmwareDownloadFailed(QString error);
 
 public slots:
     void get(QString location);
@@ -50,8 +61,10 @@ public slots:
     void postDroneNo(QString location); // post droneNo to check whether it's registered or not
     void logOutCustomer(QString location, QByteArray data);
     void clearData();
+    void clearVehicleData();
     void getLatestFirmwareInfo(QString location);
     void uploadKey(QString location, QString pathOfKey);
+    void firmwareDownload(QString location);
 
 private slots:
     void readyRead();
@@ -60,6 +73,7 @@ private slots:
     void readyReadLogOut();
     void readyReadGetLatestFirmwareInfo();
     void readyReadUploadKey();
+    void readyReadDownload();
 
 //    void authenticationRequired(QNetworkReply *reply, QAuthenticator *authenticator);
 //    void encrypted(QNetworkReply *reply);
@@ -72,10 +86,14 @@ private:
     struct customerVehicleData
     {
         QString vehicleSerialId;
+        QString modalID;
+        QString vehicleServerID;
         bool npntCheck;
     } vehicleData;
 
+    SJPilotData* pilot;
     QNetworkAccessManager manager;
+    QString serverURL;
     QByteArray authCode;
     QByteArray token;
     QByteArray tokenDroneNo;//storing 'auth': header session

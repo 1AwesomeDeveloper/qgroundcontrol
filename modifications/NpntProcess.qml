@@ -8,7 +8,6 @@ import com.NPNT_CONTROL 1.0
 
  Rectangle{
         id:myrect
-        property bool complete: false
         property bool check1:false
         property bool check2:false
         property bool check3:false
@@ -16,11 +15,15 @@ import com.NPNT_CONTROL 1.0
         property bool vis: false
         anchors.fill: parent
         color: "grey"
-        visible: myrect.vis
+        signal changePage(int page)
+        signal npntComplete()
+        visible: true
         z:1
         Component.onCompleted: {
             //start NPNT process
+            npntController.restartConnection();
             npntController.deviceConnected();
+
         }
         NpntControl{
             id : npntController;
@@ -28,10 +31,10 @@ import com.NPNT_CONTROL 1.0
             onCheck2: myrect.check2 = true;
             onCheck3: myrect.check3 = true;
             onCheck4: myrect.check4 = true;
+            onFirmwareUpgradeInit: {
+                changePage(4);
+            }
 
-        }
-        function npntComplete(){
-            return check1 & check2 & check3 & check4;
         }
         function resetChecks(){
             check1 = false;
@@ -106,12 +109,22 @@ import com.NPNT_CONTROL 1.0
                         indicator.width:rect1.width/20
                         indicator.height:rect1.height/20
                         onCheckedChanged: {
-                            if(npntComplete()){
-                                vis = false;
-                                resetChecks();
-                                complete = true;
+                            if(checkable){
+                                //resetChecks();
+                                npntComplete();
+                                tmr.start();
                             }
                         }
+                    }
+                    Timer{
+                        id: tmr
+                        interval: 2000
+                        running: false
+                        repeat: false
+                        onTriggered: {
+                            myrect.changePage(5);
+                        }
+
                     }
             }
 

@@ -5,12 +5,15 @@
 #include "QGCApplication.h"
 #include "MockLink.h"
 #include "FTPManager.h"
-
+#include "string"
 
 // Singleton
 
 CustomerData::CustomerData(QObject* parent): QObject(parent)
+
 {
+    serverURL = QString(SERVER_URL) + "/customer";
+    pilot = new SJPilotData(QString(SERVER_URL) + "/pilot");
     loggedIN = false;
     droneStatusCheck = false;
 }
@@ -58,7 +61,7 @@ void CustomerData::postOTP(QString location, QByteArray data)
     qInfo() << "Posting OTP to Server.....";
     QNetworkRequest request = QNetworkRequest(QUrl(location));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    request.setRawHeader("loingauth", authCode);
+    request.setRawHeader("loginauth", authCode);
     QNetworkReply* reply = manager.post(request, data);
     connect(reply, &QNetworkReply::readyRead, this, &CustomerData::readyReadOTP);
 }
@@ -103,29 +106,21 @@ void CustomerData::clearData()
     authCode.clear();
     token.clear();
     tokenDroneReply.clear();
+    clearVehicleData();
     //
 }
 
-//void CustomerData::getLatestFirmwareInfo(QString location)
-//{
-//    qInfo() <<"Requesting latest firmware...";
-//    QUrlQuery params;
-//        params.addQueryItem("token", tokenDroneNo);
-//        params.addQueryItem("id", "601bd6bbaf54850017f2ce5b");
-//    QUrl url(location);
-//    url.setQuery(params.query());
-//    QNetworkRequest request = QNetworkRequest(url);
-//    request.setHeader(QNetworkRequest::ContentTypeHeader , "application/json");
-//    //request.setRawHeader("auth",tokenDroneNo);
-
-//    QNetworkReply* reply = manager.get(request);
-//    connect(reply,&QNetworkReply::readyRead, this, &CustomerData::readyReadGetLatestFirmwareInfo);
-//}
+void CustomerData::clearVehicleData()
+{
+    vehicleData.npntCheck = false;
+    vehicleData.vehicleSerialId.clear();
+    vehicleData.modalID.clear();
+}
 
 void CustomerData::getLatestFirmwareInfo(QString location)
 {
     qInfo() <<"Requesting latest firmware...";
-    location += QString("/601bd6bbaf54850017f2ce5b");
+    location += QString("/" + vehicleData.modalID);
     QUrl url(location);
     QNetworkRequest request = QNetworkRequest(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader , "application/json");
@@ -161,22 +156,35 @@ void CustomerData::uploadKey(QString location, QString pathOfKey)
 
         multiPart->append(imagePart);
 
-        QUrlQuery params;
-        //UNDER CONSTRUCTION
-            QString _id = this->vehicleData.vehicleSerialId; // yet to be decided
-            params.addQueryItem("id", _id);
-        //
-        QUrl url(location);
-        url.setQuery(params.query());
+//        QUrlQuery params;
+//        //UNDER CONSTRUCTION
+//            QString _id = this->vehicleData.vehicleSerialId;
+//            params.addQueryItem("id", _id);
+//        //
+        QUrl url(location + "/" + vehicleData.vehicleServerID);
+//        url.setQuery(params.query());
 
         QNetworkRequest request(url);
 
-        request.setRawHeader("auth",tokenDroneNo);
+        request.setRawHeader("auth", tokenDroneNo);
         QNetworkReply* reply = manager.post(request, multiPart);
         multiPart->setParent(reply);
 
          connect(reply, SIGNAL(finished()),
-                  this, SLOT  (readyReadUploadKey()));
+                 this, SLOT  (readyReadUploadKey()));
+}
+
+void CustomerData::firmwareDownload(QString location)
+{
+    location += "/downloadLatestFirmware";
+    qInfo() <<"Downloading latest firmware...";
+    location += QString("/" + vehicleData.modalID);
+    QUrl url(location);
+    QNetworkRequest request = QNetworkRequest(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader , "application/json");
+    request.setRawHeader("auth",tokenDroneNo);
+    QNetworkReply* reply = manager.get(request);
+    connect(reply,&QNetworkReply::finished, this, &CustomerData::readyReadDownload);
 }
 
 
@@ -190,11 +198,13 @@ void CustomerData::readyRead()
     QJsonObject jsonObject = jsonResponse.object();
 
     if(jsonObject.find("error") != jsonObject.end()){
-        emit wrongDetails();
+
+
+        emit wrongDetails(jsonObject["error"].toObject()["message"].toString());
         return;
     }
     if(jsonObject.find("loginToken") == jsonObject.end()){
-        emit wrongDetails();
+        emit wrongDetails(replyStr);
         return;
     }
     authCode.clear();
@@ -214,11 +224,11 @@ void CustomerData::readyReadOTP()
     qInfo() << replyStr;
     QJsonObject jsonObject = jsonResponse.object();
     if(jsonObject.find("error") != jsonObject.end()){
-        emit wrongOTP();
+        emit wrongOTP(jsonObject["error"].toObject()["message"].toString());
         return;
     }
     if(jsonObject.find("accessToken") == jsonObject.end()){
-        emit wrongOTP();
+        emit wrongOTP(replyStr);
         return;
     }
     tokenDroneNo.clear();
@@ -234,15 +244,22 @@ void CustomerData::readyReadDroneNo()
 {
     qInfo() <<"Ready Read Drone";
     QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
-    QByteArray replyArray = reply->readAll();
-    qInfo() << replyArray;
-    if(replyArray.contains("Your drone is not registered")){
+    QString replyStr = (QString)reply->readAll();
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(replyStr.toUtf8());
+    qInfo() << replyStr;
+    QJsonObject jsonObject = jsonResponse.object();
+    if(jsonObject.find("error") != jsonObject.end()){
             emit droneNotRegistered();
-        }
-    if(replyArray.contains("modal")){
+    }
+    if(jsonObject.find("modalId") != jsonObject.end() && jsonObject.find("id") != jsonObject.end()){
+        vehicleData.modalID.clear();
+        vehicleData.vehicleServerID.clear();
+        vehicleData.vehicleServerID = jsonObject["id"].toString();
+        vehicleData.modalID = jsonObject["modalId"].toString();
             droneStatusCheck = true;
             emit droneRegistered();
-        }
+     }
+    else emit droneNotRegistered();
 
 }
 
@@ -274,11 +291,27 @@ void CustomerData::readyReadGetLatestFirmwareInfo()
     QJsonObject jsonObject = jsonResponse.object();
     // response is parsed
     if(jsonObject.find("error") != jsonObject.end()){
-        emit getFirmwareInfoFailed();
+        emit getFirmwareInfoFailed(false);
     }
     else{
-        //qgcApp()->toolbox()->multiVehicleManager()->activeVehicle()->versionCompare();
-        emit getFirmwareInfoSuccessfull();
+        QString latestVersion = jsonObject["version"].toString();
+        int version[3], idx=0;
+        memset(version, 0, sizeof(version));
+        for(auto c: latestVersion){
+            if(c.digitValue() == -1){
+                if(c.toLatin1() == QChar('.').toLatin1()){
+                    idx++;
+                }
+            }
+            else if(idx < 3){
+                version[idx] *= 10;
+                version[idx] += c.digitValue();
+            }
+        }
+        qInfo() << "Latest Firmware Info : "<< version[0] <<"." <<version[1]<<"."<<version[2];
+        int res = qgcApp()->toolbox()->multiVehicleManager()->activeVehicle()->versionCompare(version[0], version[1], version[2]);
+        if(res!=0) emit getFirmwareInfoFailed(true);
+        else emit getFirmwareInfoSuccessfull();
     }
 }
 
@@ -300,12 +333,44 @@ void CustomerData::readyReadUploadKey()
     }
 }
 
+void CustomerData::readyReadDownload()
+{
+    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+    if(reply->error())
+        {
+            qDebug() << "ERROR!";
+            qDebug() << reply->errorString();
+            emit firmwareDownloadFailed(reply->errorString());
+        }
 
-//extern QObject *singletonProvider(QQmlEngine *engine, QJSEngine *scriptEngine)
-//{
-//    Q_UNUSED(engine)
-//    Q_UNUSED(scriptEngine)
-//    return getInstance();
-//}
+        else
+        {
+            qDebug() << "1) " << reply->header(QNetworkRequest::ContentTypeHeader).toString();
+            qDebug() << "2) " << reply->header(QNetworkRequest::LastModifiedHeader).toDateTime().toString();
+            qDebug() << "3) " << reply->header(QNetworkRequest::ContentLengthHeader).toULongLong();
+            qDebug() << "4) " << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+            qDebug() << "5) " << reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
 
+            QString path(QStandardPaths::writableLocation(QStandardPaths::TempLocation)), path2;
+            path += "/space_jam_custom_firmware.bin";
+            path2 = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation)+"/space_jam_custom_firmware.bin";
+            QFile file(path);
+            if(file.open(QFile::WriteOnly | QIODevice::Truncate))
+            {
+                qDebug() <<"The text file is open";
+                file.write(reply->readAll());
+                file.close();
+                QDir dir;
+                dir.rename(path, path2);
+                emit firmwareDownloadComplete(path2);
+
+            }
+            else{
+                qDebug() << "file not open";
+                emit firmwareDownloadFailed("Cannot Load Firmware File");
+            }
+        }
+
+        reply->deleteLater();
+}
 

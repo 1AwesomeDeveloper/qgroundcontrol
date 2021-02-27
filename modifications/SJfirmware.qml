@@ -19,15 +19,17 @@ import QGroundControl.FactControls  1.0
 import QGroundControl.Palette       1.0
 import QGroundControl.Controllers   1.0
 import QGroundControl.ScreenTools   1.0
+import SpaceJam 1.0
 
 Rectangle{
     id:myrect
     color:"grey"
     anchors.fill: parent
-    z:1
-
+//    z:1
+    signal changePage(int page)
     Component.onCompleted: {
-        controller.startBoardSearch()
+        display.append("Please wait while connecting to servers...")
+        downloadController.getLatestFirmware()
     }
     property bool vis:false
 
@@ -41,8 +43,16 @@ Rectangle{
     property bool   initialBoardSearch:             true
     property string firmwareName
     property bool _singleFirmwareMode:          QGroundControl.corePlugin.options.firmwareUpgradeSingleURL.length != 0   ///< true: running in special single firmware download mode
-
+    property string _path
     visible: myrect.vis
+    SJFirmwareController{
+        id: downloadController
+        onFirmwareReady: {
+            _path = path
+            controller.startBoardSearch()
+        }
+
+    }
 
     Rectangle{
                id: rect1
@@ -105,7 +115,6 @@ Rectangle{
         onActiveVehicleChanged: {
             if (!globals.activeVehicle) {
                 display.text = "Please unplug your board and plug back in"
-
             }
         }
 
@@ -113,7 +122,6 @@ Rectangle{
             initialBoardSearch = false
             if (!QGroundControl.multiVehicleManager.activeVehicleAvailable) {
                 display.text = "Plug in your device via USB to start firmware upgrade"
-
             }
         }
 
@@ -121,7 +129,6 @@ Rectangle{
             initialBoardSearch = false
             if (!QGroundControl.multiVehicleManager.activeVehicleAvailable) {
                display.text = "Plug in your device via USB to start firmware upgrade"
-
             }
         }
 
@@ -143,7 +150,9 @@ Rectangle{
         }
 
         onShowFirmwareSelectDlg: {
-            controller.flashFirmwareUrl("/home/kapil/Downloads/abc.px4")
+            console.log("Firmware path: " + _path)
+            //changePage(3)
+            controller.flashFirmwareUrl(_path)
         }
 
         onEraseStarted:{
@@ -158,8 +167,11 @@ Rectangle{
         onFlashComplete: {
             display.append("")
             display.append("Flash Complete!")
+            downloadController.deleteFirmwareFile(_path)
+            changePage(3)
         }
-}
+    }
+
 }
 
 

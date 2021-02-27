@@ -3,23 +3,22 @@ import QtQuick.Window 2.12
 import QtQuick.Controls 2.0
 import QtQuick.Dialogs 1.1
 import QGroundControl 1.0
+import SpaceJam 1.0
 Rectangle{
 
         id:myRect
         color:"grey"
         anchors.fill: parent
         z:1
-        property var    _activeVehicle:     QGroundControl.multiVehicleManager.activeVehicle
-        property bool   _communicationLost: _activeVehicle ? _activeVehicle.vehicleLinkManager.communicationLost : false
-        property string usrname
-        property string passwrd
-        signal getUsername()
-        signal getPassword()
-        signal changeUsername(string a)
-        signal changePassword(string b)
-        signal loginButton()
-        property bool vis:true
-        visible: myRect.vis
+        visible: true;
+        signal changePage(int page)
+        SJPilotPageController{
+            id: controller
+
+            onLoginSuccessfull: {
+                changePage(6);
+            }
+        }
 
 Rectangle{
            id: rect1
@@ -47,14 +46,12 @@ Rectangle{
 
                TextField{
                    id:pilotusername
-                   text: usrname
+                   text: controller.userName
                    placeholderText: qsTr("Enter Email")
                    width: rect1.width/2
                    height:rect1.height/10
                    onTextChanged:{
-                       usrname = text
-                       changeUsername(text);
-                       getUsername()
+                       controller.userName = pilotusername.text
 
                }
                }
@@ -74,13 +71,11 @@ Rectangle{
                    id:pilotpassword
                    placeholderText: qsTr("Enter Password")
                    echoMode:"Password"
-                   text: passwrd
+                   text: controller.passWord
                    width: rect1.width/2
                    height:rect1.height/10
                    onTextChanged:{
-                       passwrd = text
-                       changePassword(text)
-                       getPassword()
+                       controller.passWord = pilotpassword.text
                    }
 
            }
@@ -111,7 +106,7 @@ Rectangle{
                        anchors.fill: mybtn
                        hoverEnabled: true
                        onClicked:{
-                           loginButton()
+                           controller.okButton = true
 
                        }
 

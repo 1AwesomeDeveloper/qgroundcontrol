@@ -46,98 +46,71 @@ ApplicationWindow {
         firstRunPromptManager.nextPrompt()
     }
 
-        Auth{
-            id:auth
-            onLoggedInStatusChange: {
-                login.vis = !auth.getLoginStatus();
-                otp.vis   = auth.getLoginStatus() & !auth.getOTPStatus();
-                npnt.vis  = auth.getLoginStatus() & auth.getOTPStatus();
-            }
-
-        }
-
-//        HomePage{
-//            id: home
-//            vis : true
-//         }
-
-//        Loginpage{
-//            id:login
-//            anchors.rightMargin: 0
-//            anchors.bottomMargin: 0
-//            anchors.leftMargin: 0
-//            anchors.topMargin: 0
-//            vis: !auth.getLoginStatus()
-
-//            onGetUsername: {
-//                login.usrname = auth.userName;
-//            }
-//            onGetPassword: {
-//                login.passwrd = auth.passWord;
-//            }
-//            onChangeUsername:{
-//                auth.userName = login.usrname;
-//            }
-//            onChangePassword:{
-//                auth.passWord = login.passwrd;
-//            }
-//            onLoginButton:{
-//                auth.okButton = true;
-//                mainWindow.pushPreventViewSwitch()
-//            }
-//            onFirmwarebtn: {
-//                sjfirmware.vis = true
-//                login.vis = false
-//            }
-
-//        }
-
-        OtpVerify{
-            id: otp
-            anchors.rightMargin: 0
-            anchors.bottomMargin: 0
-            anchors.leftMargin: 0
-            anchors.topMargin: 0
-            vis:!auth.getOTPStatus() & !login.vis
-            onGetOtpVal: {
-              otp.otpVal = auth.otp;
-             }
-            onSetOtp: {
-              auth.otp = otp.otpVal;
-            }
-           onVerifyButton: {
-              auth.otpButton = true;
-           }
-           onBackButtonClicked: {
-              login.vis = true;
-              login.usrname=""
-              login.passwrd=""
-              vis = false;
-          }
+    Component{
+        id:login
+        Loginpage{}
     }
 
-//        NpntProcess{
-//            id: npnt
-//            anchors.rightMargin: 0
-//            anchors.bottomMargin: 0
-//            anchors.leftMargin: 0
-//            anchors.topMargin: 0
-//            vis: false
-//            onCompleteChanged: globals.npntComplete = true
+    Component{
+        id: otp
+        OtpVerify{
+        }
+    }
 
-//        }
+    Component{
+        id: npnt
+        NpntProcess{
+            onNpntComplete: {
+                globals.npntComplete = true;
+            }
+        }
+    }
 
-//        PilotLogin{
-//            id:pilot
-//            vis: true
-//        }
+    Component{
+        id: firmwareUpgrade
+        SJfirmware{
+            id: sjfirmware
+            vis: true
+        }
+    }
 
+    Component{
+        id: pilotPage
+        PilotLogin{
+        }
+    }
 
-//    SJfirmware{
-//        id: sjfirmware
-//        vis: true
+    Loader {
+        id: sjloader
+        anchors.fill: parent
+        sourceComponent: login
+        visible: true
+        active: visible
+        z:1
+        Connections {
+            target: sjloader.item
+            onChangePage: {
+                switch(page)
+                {
+                    case  1: sjloader.sourceComponent = login; break;
+                    case  2: sjloader.sourceComponent = otp; break;
+                    case  3: sjloader.sourceComponent = npnt; break;
+                    case  4: sjloader.sourceComponent = firmwareUpgrade; break;
+                    case  5: sjloader.sourceComponent = pilotPage; break;
+                    case  6: sjloader.visible = false; break;
+                    default: sjloader.sourceComponent = login;
+                }
+                if(page > 2){
+                    globals.customerLogin = true;
+                }
+                if(page == 4){
+                    globals.firmwareUpgrading = true;
+                }
+                else globals.firmwareUpgrading = false;
+            }
+        }
+    }
 
-//    }
 
     QtObject {
         id: firstRunPromptManager
@@ -175,6 +148,8 @@ ApplicationWindow {
 
     QtObject {
         id: globals
+        property bool               customerLogin:                  false
+        property bool               firmwareUpgrading:              false
         property bool               npntComplete
         readonly property var       activeVehicle:                  QGroundControl.multiVehicleManager.activeVehicle
         readonly property real      defaultTextHeight:              ScreenTools.defaultFontPixelHeight
@@ -184,6 +159,13 @@ ApplicationWindow {
 
         property var                planMasterControllerPlanView:   null
         property var                currentPlanMissionItem:         planMasterControllerPlanView ? planMasterControllerPlanView.missionController.currentPlanViewItem : null
+        onActiveVehicleChanged: {
+            if(customerLogin && !activeVehicle && !firmwareUpgrading){
+                sjloader.visible = false
+                sjloader.sourceComponent = npnt
+                sjloader.visible = true
+            }
+        }
     }
 
     /// Default color palette used throughout the UI

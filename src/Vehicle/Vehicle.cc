@@ -95,7 +95,6 @@ const char* Vehicle::_hobbsFactName =               "hobbs";
 const char* Vehicle::_throttlePctFactName =         "throttlePct";
 
 const char* Vehicle::_gpsFactGroupName =                "gps";
-const char* Vehicle::_gps2FactGroupName =               "gps2";
 const char* Vehicle::_windFactGroupName =               "wind";
 const char* Vehicle::_vibrationFactGroupName =          "vibration";
 const char* Vehicle::_temperatureFactGroupName =        "temperature";
@@ -149,7 +148,6 @@ Vehicle::Vehicle(LinkInterface*             link,
     , _hobbsFact                    (0, _hobbsFactName,             FactMetaData::valueTypeString)
     , _throttlePctFact              (0, _throttlePctFactName,       FactMetaData::valueTypeUint16)
     , _gpsFactGroup                 (this)
-    , _gps2FactGroup                (this)
     , _windFactGroup                (this)
     , _vibrationFactGroup           (this)
     , _temperatureFactGroup         (this)
@@ -296,7 +294,6 @@ Vehicle::Vehicle(MAV_AUTOPILOT              firmwareType,
     , _hobbsFact                        (0, _hobbsFactName,             FactMetaData::valueTypeString)
     , _throttlePctFact                  (0, _throttlePctFactName,       FactMetaData::valueTypeUint16)
     , _gpsFactGroup                     (this)
-    , _gps2FactGroup                    (this)
     , _windFactGroup                    (this)
     , _vibrationFactGroup               (this)
     , _clockFactGroup                   (this)
@@ -360,7 +357,7 @@ void Vehicle::_commonInit()
 
     _componentInformationManager    = new ComponentInformationManager   (this);
     _initialConnectStateMachine     = new InitialConnectStateMachine    (this);
-    _ftpManager                     = new FTPManager                    (this);    
+    _ftpManager                     = new FTPManager                    (this);
     _vehicleLinkManager             = new VehicleLinkManager            (this);
 
     _parameterManager = new ParameterManager(this);
@@ -406,7 +403,6 @@ void Vehicle::_commonInit()
     _addFact(&_hobbsFact,               _hobbsFactName);
 
     _addFactGroup(&_gpsFactGroup,               _gpsFactGroupName);
-    _addFactGroup(&_gps2FactGroup,              _gps2FactGroupName);
     _addFactGroup(&_windFactGroup,              _windFactGroupName);
     _addFactGroup(&_vibrationFactGroup,         _vibrationFactGroupName);
     _addFactGroup(&_temperatureFactGroup,       _temperatureFactGroupName);
@@ -463,10 +459,6 @@ Vehicle::~Vehicle()
 
     delete _mav;
     _mav = nullptr;
-
-    if (_joystickManager) {
-        _startJoystick(false);
-    }
 
 #if defined(QGC_AIRMAP_ENABLED)
     if (_airspaceVehicleManager) {
@@ -885,26 +877,23 @@ void Vehicle::_handleStatusText(mavlink_message_t& message)
     messageText = QString(b);
 
     droneNumber = statustext.text;
-    if(droneNumber.contains("PX4v") || droneNumber.contains("Pixhawk") || droneNumber.contains("fmuv3")){
-        flag=1;
-        PixhawkID = droneNumber;
-        qInfo()  << droneNumber;
-        }
-        QByteArray n;
-        n.append("{\"flightControllerNumber\":\"");
-        n.append(PixhawkID);
-        n.append("\"}");
+    if(droneNumber.contains("PX4v") || droneNumber.contains("Pixhawk") || droneNumber.contains("fmuv")){
 
+        flag=1;
+        PixhawkID.clear();
+        bool check = false;
+        for(auto c: droneNumber){
+            if(c == ' ') check = true;
+            else if(check) PixhawkID.push_back(c);
+
+        }
+        qInfo()  << "drone no: " << droneNumber;
+        }
         if(qgcApp()->getCust()->vehicleIDChanged(PixhawkID)){
             //UNDER CONSTRUCTION
             // emit signal?
             //
         }
-//        if(qgcApp()->getCust()->loggedIn() && !qgcApp()->getCust()->DroneStatusCheck() && flag==1){
-
-//            //qgcApp()->getCust()->postDroneNo("https://drone-management-api-ankit1998.herokuapp.com/customer/checkMyDrone",n);
-//            flag=0;
-//        }
     bool includesNullTerminator = messageText.length() < MAVLINK_MSG_STATUSTEXT_FIELD_TEXT_LEN;
 
     if (_chunkedStatusTextInfoMap.contains(compId) && _chunkedStatusTextInfoMap[compId].chunkId != statustext.id) {
@@ -1334,7 +1323,6 @@ void Vehicle::_handleSysStatus(mavlink_message_t& message)
     if (_onboardControlSensorsPresent != sysStatus.onboard_control_sensors_present) {
         _onboardControlSensorsPresent = sysStatus.onboard_control_sensors_present;
         emit sensorsPresentBitsChanged(_onboardControlSensorsPresent);
-        emit requiresGpsFixChanged();
     }
     if (_onboardControlSensorsEnabled != sysStatus.onboard_control_sensors_enabled) {
         _onboardControlSensorsEnabled = sysStatus.onboard_control_sensors_enabled;
@@ -1475,20 +1463,15 @@ void Vehicle::_handlePing(LinkInterface* link, mavlink_message_t& message)
         mavlink_message_t   msg;
 
         mavlink_msg_ping_decode(&message, &ping);
-
-        if ((ping.target_system == 0) && (ping.target_component == 0)) {
-            // Mavlink defines a ping request as a MSG_ID_PING which contains target_system = 0 and target_component = 0
-            // So only send a ping response when you receive a valid ping request
-            mavlink_msg_ping_pack_chan(static_cast<uint8_t>(_mavlink->getSystemId()),
-                                    static_cast<uint8_t>(_mavlink->getComponentId()),
-                                    sharedLink->mavlinkChannel(),
-                                    &msg,
-                                    ping.time_usec,
-                                    ping.seq,
-                                    message.sysid,
-                                    message.compid);
-            sendMessageOnLinkThreadSafe(link, msg);
-        }
+        mavlink_msg_ping_pack_chan(static_cast<uint8_t>(_mavlink->getSystemId()),
+                                   static_cast<uint8_t>(_mavlink->getComponentId()),
+                                   sharedLink->mavlinkChannel(),
+                                   &msg,
+                                   ping.time_usec,
+                                   ping.seq,
+                                   message.sysid,
+                                   message.compid);
+        sendMessageOnLinkThreadSafe(link, msg);
     }
 }
 
@@ -1885,7 +1868,6 @@ void Vehicle::_startJoystick(bool start)
             joystick->startPolling(this);
         } else {
             joystick->stopPolling();
-            joystick->wait(500);
         }
     }
 }
