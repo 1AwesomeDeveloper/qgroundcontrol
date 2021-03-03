@@ -40,6 +40,15 @@ void CustomerData::get(QString location)
     connect(reply, &QNetworkReply::readyRead, this, &CustomerData::readyRead);
 }
 
+void CustomerData::getLatestGCSversion()
+{
+    qInfo() << "Posting to Server.....";
+    QNetworkRequest request = QNetworkRequest(serverURL + "/GCSVersion");
+    request.setRawHeader("Content-Type", "application/json");
+    QNetworkReply* reply = manager.get(request);
+    connect(reply, &QNetworkReply::finished, this, &CustomerData::readyReadGCSVersion);
+}
+
 void CustomerData::postEmailPass(QString location, QByteArray data)
 {    if(loggedIN){
         qInfo() << "Customer already logged in";
@@ -213,6 +222,23 @@ void CustomerData::readyRead()
     qInfo() << "authcode  = " << authCode;
     emit correctDetails();
 
+}
+
+void CustomerData::readyReadGCSVersion()
+{
+    qInfo() << "Ready Read OTP ";
+    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+    QString replyStr = (QString)reply->readAll();
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(replyStr.toUtf8());
+    qInfo() << replyStr;
+    QJsonObject jsonObject = jsonResponse.object();
+    if(jsonObject.find("error") != jsonObject.end()){
+        emit wrongOTP(jsonObject["error"].toObject()["message"].toString());
+        return;
+    }
+    if(QString(SOFTWARE_VERSION) < jsonObject["GCSVersion"].toString()){
+        qInfo()<<"UPGRADE REQUIRED";
+    }
 }
 
 void CustomerData::readyReadOTP()

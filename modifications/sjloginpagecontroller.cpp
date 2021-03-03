@@ -7,6 +7,7 @@ SJLoginPageController::SJLoginPageController(QObject *parent): QObject(parent){
     m_passWord = "Abc@12345";
     myURL = qgcApp()->getCust()->getURL();
     qgcApp()->toolbox()->linkManager()->shutdown();
+    qgcApp()->getCust()->getLatestGCSversion();
     loginStatus = false;
     connect(qgcApp()->getCust(), &CustomerData::correctDetails,         this, &SJLoginPageController::LoginSuccessful);
     connect(qgcApp()->getCust(), &CustomerData::wrongDetails,           this, &SJLoginPageController::LoginFailed);

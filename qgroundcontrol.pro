@@ -428,6 +428,7 @@ contains (DEFINES, QGC_ENABLE_PAIRING) {
 HEADERS += \
     modifications/customerdata.h \
     modifications/login.h \
+    modifications/sjResources.h \
     modifications/sjloginpagecontroller.h \
     modifications/sjotppagecontroller.h \
     modifications/sjpilotdata.h \

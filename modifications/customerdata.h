@@ -16,15 +16,14 @@
 #include <iostream>
 #include "Vehicle.h"
 #include "sjpilotdata.h"
-
-#define SERVER_URL "https://asroot-drone.herokuapp.com"
+#include "sjResources.h"
 
 class CustomerData: public QObject
 {
     Q_OBJECT
 
 public:
-       explicit CustomerData(QObject* parent=nullptr);
+    explicit CustomerData(QObject* parent=nullptr);
     bool loggedIn(){return loggedIN;}
     bool DroneStatusCheck(){return droneStatusCheck;}
     bool vehicleIDChanged(QString vehicleID);
@@ -56,6 +55,7 @@ signals:
 
 public slots:
     void get(QString location);
+    void getLatestGCSversion();
     void postEmailPass(QString location, QByteArray data);
     void postOTP(QString location, QByteArray data);
     void postDroneNo(QString location); // post droneNo to check whether it's registered or not
@@ -68,6 +68,7 @@ public slots:
 
 private slots:
     void readyRead();
+    void readyReadGCSVersion();
     void readyReadOTP();
     void readyReadDroneNo();//getting droneNo validation reply
     void readyReadLogOut();
