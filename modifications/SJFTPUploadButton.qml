@@ -38,11 +38,11 @@ Rectangle{
     }
 
     QGCButton {
-        height: parent.height
-        width: height
+        height:             parent.height
+        width:              height
         id:                 uploadButton
-        text:               qsTr("Upload")
+        text:               qsTr("Upload\nPA")
         onClicked:          filePathDialog.openForLoad();
-        visible:           parent.visible
+        visible:            parent.visible
     }
 }

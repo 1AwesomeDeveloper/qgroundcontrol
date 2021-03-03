@@ -16,6 +16,8 @@ void SJPilotPageController::checkDataBase(bool okButton)
         jsonString.append(m_userName);
         jsonString.append("\",\"password\":\"");
         jsonString.append(m_passWord);
+        jsonString.append("\",\"droneId\":\"");
+        jsonString.append(qgcApp()->getCust()->getDroneServerID());
         jsonString.append("\"}");
         qgcApp()->getCust()->getPilot()->postEmailPass(jsonString);
     }

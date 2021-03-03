@@ -65,6 +65,7 @@ public slots:
     void getLatestFirmwareInfo(QString location);
     void uploadKey(QString location, QString pathOfKey);
     void firmwareDownload(QString location);
+    QString getDroneServerID(){return vehicleData.vehicleServerID;}
 
 private slots:
     void readyRead();
