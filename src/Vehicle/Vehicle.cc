@@ -2566,6 +2566,69 @@ void Vehicle::emergencyStop()
                 21196.0f);  // Magic number for emergency stop
 }
 
+void Vehicle::turnMode(QString turnAngle)
+{   bool check;
+    float angle = turnAngle.toFloat(&check);
+    if (!check){
+        qDebug()<<"Incorrect Angle";
+        return;
+    }
+    sendMavCommand(
+                _defaultComponentId,
+                MAV_CMD_DO_SET_MODE,
+                true,        // show error if fails
+                static_cast<float>(1),
+                static_cast<float>(4),
+                static_cast<float>(11),
+                static_cast<float>(angle)
+                );  // Magic number for emergency stop
+
+}
+
+void Vehicle::diveMode(QString diveAngle)
+{
+        bool check;
+        float angle = diveAngle.toFloat(&check);
+        if (angle > 0){
+            angle = -angle;
+        }
+        if (angle < -100){
+            qDebug()<<"Angle unsafe for safe flight";
+            return;
+        }
+
+        if (!check){
+            qDebug()<<"Incorrect Angle";
+            return;
+        }
+    sendMavCommand(
+                _defaultComponentId,
+                MAV_CMD_DO_SET_MODE,
+                true,        // show error if fails
+                static_cast<float>(1),
+                static_cast<float>(4),
+                static_cast<float>(10),
+                static_cast<float>(angle)
+                );  // Magic number for emergency stop
+
+}
+
+void Vehicle::orbitMode()
+{
+    sendMavCommand(
+                   _defaultComponentId,
+                   MAV_CMD_DO_SET_MODE,
+                   true,        // show error if fails
+                   static_cast<float>(1),
+                   static_cast<float>(4),
+                   static_cast<float>(11),
+                   static_cast<float>(200)
+                   );  // Magic number for emergency stop
+}
+
+
+
+
 void Vehicle::setCurrentMissionSequence(int seq)
 {
     WeakLinkInterfacePtr weakLink = vehicleLinkManager()->primaryLink();
@@ -2704,6 +2767,10 @@ void Vehicle::_sendMavCommandWorker(bool commandInt, bool requestMessage, bool s
         }
         if (showError) {
             qgcApp()->showAppMessage(tr("Unable to send command: %1.").arg(compIdAll ? tr("Internal error - MAV_COMP_ID_ALL not supported") : tr("Waiting on previous response to same command.")));
+        }
+
+        else{
+            qDebug()<<"In else";
         }
 
         return;

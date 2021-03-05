@@ -360,6 +360,10 @@ public:
     /// Command vehicle to kill all motors no matter what state
     Q_INVOKABLE void emergencyStop();
 
+    Q_INVOKABLE void turnMode(QString turnAngle);
+    Q_INVOKABLE void diveMode(QString diveAngle);
+    Q_INVOKABLE void orbitMode();
+
     /// Command vehicle to abort landing
     Q_INVOKABLE void abortLanding(double climbOutAltitude);
 

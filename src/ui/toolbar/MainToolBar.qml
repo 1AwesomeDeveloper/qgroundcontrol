@@ -83,6 +83,75 @@ Rectangle {
             onClicked:          _activeVehicle.closeVehicle()
             visible:            _activeVehicle && _communicationLost && currentToolbar === flyViewToolbar
         }
+
+        QGCButton {
+            id:                 customModes
+            text:               qsTr("Custom Modes")
+            onClicked:          customModeMenu.popup()
+            visible:            _activeVehicle
+        }
+
+        QGCMenu{
+            id: customModeMenu
+            property int mode: 0
+
+            QGCMenuItem{
+                text: qsTr("Orbit Mode")
+                onTriggered: {
+                    _activeVehicle.orbitMode()
+                }
+            }
+            QGCMenuItem{
+                text: qsTr("Dive Mode")
+                onTriggered: {
+                    customDialog.open()
+                    customModeMenu.mode = 0
+                }
+            }
+            QGCMenuItem{
+                text: qsTr("Turn Mode")
+                onTriggered: {
+                    customDialog.open()
+                    customModeMenu.mode = 1
+                }
+            }
+
+            Dialog {
+                id: customDialog
+                title: "Enter Angle"
+                standardButtons: StandardButton.Ok | StandardButton.Cancel
+
+                ColumnLayout {
+
+                    Text {
+                        id: labelItem
+                        text: "Enter Angle Below"
+                    }
+
+                    TextField {
+                        id: editInput
+                        text: ""
+                    }
+
+                }
+
+
+                onButtonClicked: {
+                    if (clickedButton==StandardButton.Ok) {
+                        console.log("Accepted " + clickedButton)
+                        if (customModeMenu.mode == 0){
+                         _activeVehicle.diveMode(editInput.text)
+                        }
+                        else if (customModeMenu.mode == 1){
+                         _activeVehicle.turnMode(editInput.text)
+                        }
+                    } else {
+                        console.log("Rejected" + clickedButton)
+                    }
+                }
+            }
+
+    }
     }
 
     QGCFlickable {
