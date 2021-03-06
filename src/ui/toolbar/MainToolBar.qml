@@ -116,6 +116,8 @@ Rectangle {
                 }
             }
 
+        }
+
             Dialog {
                 id: customDialog
                 title: "Enter Angle"
@@ -151,7 +153,7 @@ Rectangle {
                 }
             }
 
-    }
+
     }
 
     QGCFlickable {
