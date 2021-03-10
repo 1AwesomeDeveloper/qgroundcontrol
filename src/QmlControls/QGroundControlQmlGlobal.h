@@ -36,6 +36,7 @@ class MicrohardManager;
 #ifdef QT_DEBUG
 #include "MockLink.h"
 #endif
+#include "customerdata.h"
 
 class QGCToolbox;
 class LinkManager;
@@ -145,6 +146,7 @@ public:
     Q_INVOKABLE QString altitudeModeExtraUnits(AltitudeMode altMode);       ///< String shown in the FactTextField.extraUnits ui
     Q_INVOKABLE QString altitudeModeShortDescription(AltitudeMode altMode); ///< String shown when a user needs to select an altitude mode
 
+    Q_INVOKABLE void logoutCustomer();
     // Property accesors
 
     QString                 appName             ()  { return qgcApp()->applicationName(); }

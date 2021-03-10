@@ -3,12 +3,13 @@
 
 SJLoginPageController::SJLoginPageController(QObject *parent): QObject(parent){
     mutex = false;
-    m_userName = "kshitijgoyal5@gmail.com";
-    m_passWord = "Abc@12345";
+    m_userName = "";
+    m_passWord = "";
     myURL = qgcApp()->getCust()->getURL();
     qgcApp()->toolbox()->linkManager()->shutdown();
     qgcApp()->getCust()->getLatestGCSversion();
     loginStatus = false;
+    checkNow = false;
     connect(qgcApp()->getCust(), &CustomerData::correctDetails,         this, &SJLoginPageController::LoginSuccessful);
     connect(qgcApp()->getCust(), &CustomerData::wrongDetails,           this, &SJLoginPageController::LoginFailed);
 

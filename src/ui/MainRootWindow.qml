@@ -48,7 +48,9 @@ ApplicationWindow {
 
     Component{
         id:login
-        Loginpage{}
+        Loginpage{
+            mainindow: mainWindow
+        }
     }
 
     Component{
@@ -60,9 +62,6 @@ ApplicationWindow {
     Component{
         id: npnt
         NpntProcess{
-            onNpntComplete: {
-                globals.npntComplete = true;
-            }
         }
     }
 
@@ -87,8 +86,11 @@ ApplicationWindow {
         visible: true
         active: visible
         z:1
+
         Connections {
+            id: sjPageController
             target: sjloader.item
+
             onChangePage: {
                 switch(page)
                 {
@@ -100,13 +102,14 @@ ApplicationWindow {
                     case  6: sjloader.visible = false; break;
                     default: sjloader.sourceComponent = login;
                 }
-                if(page > 2){
-                    globals.customerLogin = true;
-                }
-                if(page == 4){
-                    globals.firmwareUpgrading = true;
-                }
+
+                if(page > 2) globals.customerLogin = true;
+
+                if(page == 4) globals.firmwareUpgrading = true;
                 else globals.firmwareUpgrading = false;
+
+                if(page > 5) globals.npntComplete = true;
+                else globals.npntComplete = false;
             }
         }
     }
@@ -151,6 +154,7 @@ ApplicationWindow {
         property bool               customerLogin:                  false
         property bool               firmwareUpgrading:              false
         property bool               npntComplete
+        property bool               appClose:                       false
         readonly property var       activeVehicle:                  QGroundControl.multiVehicleManager.activeVehicle
         readonly property real      defaultTextHeight:              ScreenTools.defaultFontPixelHeight
         readonly property real      defaultTextWidth:               ScreenTools.defaultFontPixelWidth
@@ -160,7 +164,7 @@ ApplicationWindow {
         property var                planMasterControllerPlanView:   null
         property var                currentPlanMissionItem:         planMasterControllerPlanView ? planMasterControllerPlanView.missionController.currentPlanViewItem : null
         onActiveVehicleChanged: {
-            if(customerLogin && !activeVehicle && !firmwareUpgrading){
+            if(customerLogin && !activeVehicle && !firmwareUpgrading && !appClose){
                 sjloader.visible = false
                 sjloader.sourceComponent = npnt
                 sjloader.visible = true
@@ -316,14 +320,30 @@ ApplicationWindow {
 
     property bool _forceClose: false
 
+    Timer {
+            id: timer
+        }
+
+    function delay(delayTime, cb) {
+        timer.interval = delayTime;
+        timer.repeat = false;
+        timer.triggered.connect(cb);
+        timer.start();
+    }
+
     function finishCloseProcess() {
-        _forceClose = true
-        // For some reason on the Qml side Qt doesn't automatically disconnect a signal when an object is destroyed.
-        // So we have to do it ourselves otherwise the signal flows through on app shutdown to an object which no longer exists.
-        firstRunPromptManager.clearNextPromptSignal()
-        QGroundControl.linkManager.shutdown()
-        QGroundControl.videoManager.stopVideo();
-        mainWindow.close()
+        sjloader.sourceComponent = login;
+        globals.appClose = true;
+        QGroundControl.logoutCustomer();
+        delay(2000, function() {
+                    _forceClose = true;
+                    // For some reason on the Qml side Qt doesn't automatically disconnect a signal when an object is destroyed.
+                    // So we have to do it ourselves otherwise the signal flows through on app shutdown to an object which no longer exists.
+                    firstRunPromptManager.clearNextPromptSignal();
+                    QGroundControl.linkManager.shutdown();
+                    QGroundControl.videoManager.stopVideo();
+                    mainWindow.close()
+                })
     }
 
     // On attempting an application close we check for:
@@ -402,7 +422,7 @@ ApplicationWindow {
     header: MainToolBar {
         id:         toolbar
         height:     ScreenTools.toolbarHeight
-        visible:    !QGroundControl.videoManager.fullScreen
+        visible:    !QGroundControl.videoManager.fullScreen && globals.npntComplete
         npntComplete : globals.npntComplete
     }
 

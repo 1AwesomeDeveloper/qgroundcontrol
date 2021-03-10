@@ -18,6 +18,8 @@ Rectangle{
         color:"grey"
         anchors.fill: parent
         z:1
+        property Window mainindow
+
         signal changePage(int page)
         visible: true
         SJLoginController{
@@ -25,7 +27,6 @@ Rectangle{
             onLoginSuccessfull:{
                 changePage(2)
             }
-
         }
 
 Rectangle{
