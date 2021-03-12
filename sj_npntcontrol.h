@@ -16,6 +16,7 @@ public:
     explicit SJ_NPNTControl(QObject *parent = nullptr);
     Q_INVOKABLE void restartConnection(){
         qgcApp()->getCust()->clearVehicleData();
+        qgcApp()->toolbox()->multiVehicleManager()->activeVehicle()->disconnect();
         qgcApp()->toolbox()->linkManager()->shutdown();
         qgcApp()->toolbox()->linkManager()->restart();
     }

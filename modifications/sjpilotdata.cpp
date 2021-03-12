@@ -38,12 +38,12 @@ void SJPilotData::readyRead()
         emit wrongDetails(jsonObject["error"].toObject()["message"].toString());
         return;
     }
-    if(jsonObject.find("loginToken") == jsonObject.end()){
+    if(jsonObject.find("accessToken") == jsonObject.end()){
         emit wrongDetails(replyStr);
         return;
     }
     authCode.clear();
-    QString x = jsonObject["loginToken"].toString();
+    QString x = jsonObject["accessToken"].toString();
     authCode.append(x);
     qInfo() << "authcode  = " << authCode;
     emit correctDetails();

@@ -88,8 +88,8 @@ void SJ_NPNTControl::firmwareUpgradeRequired(bool res)
                 break;
             }
             case QMessageBox::Cancel:{
-                //emit check3();
-                //keyRotated();
+                emit check3();
+                keyRotated();
                 //qgcApp()->_shutdown();
                 //qgcApp()->closeAllWindows();
                 break;

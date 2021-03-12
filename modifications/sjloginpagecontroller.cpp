@@ -3,8 +3,8 @@
 
 SJLoginPageController::SJLoginPageController(QObject *parent): QObject(parent){
     mutex = false;
-    m_userName = "";
-    m_passWord = "";
+    m_userName = "kshitijgoyal5@gmail.com";
+    m_passWord = "Abc@12345";
     myURL = qgcApp()->getCust()->getURL();
     qgcApp()->toolbox()->linkManager()->shutdown();
     qgcApp()->getCust()->getLatestGCSversion();

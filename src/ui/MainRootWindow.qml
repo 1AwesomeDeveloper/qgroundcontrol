@@ -155,6 +155,7 @@ ApplicationWindow {
         property bool               firmwareUpgrading:              false
         property bool               npntComplete
         property bool               appClose:                       false
+        property bool               _communicationLost: activeVehicle ? activeVehicle.vehicleLinkManager.communicationLost : false
         readonly property var       activeVehicle:                  QGroundControl.multiVehicleManager.activeVehicle
         readonly property real      defaultTextHeight:              ScreenTools.defaultFontPixelHeight
         readonly property real      defaultTextWidth:               ScreenTools.defaultFontPixelWidth
@@ -163,8 +164,16 @@ ApplicationWindow {
 
         property var                planMasterControllerPlanView:   null
         property var                currentPlanMissionItem:         planMasterControllerPlanView ? planMasterControllerPlanView.missionController.currentPlanViewItem : null
-        onActiveVehicleChanged: {
-            if(customerLogin && !activeVehicle && !firmwareUpgrading && !appClose){
+//        onActiveVehicleChanged: {
+//            if(customerLogin && !activeVehicle && !firmwareUpgrading && !appClose){
+//                sjloader.visible = false
+//                sjloader.sourceComponent = npnt
+//                sjloader.visible = true
+//            }
+//        }
+        on_CommunicationLostChanged: {
+            console.log("communication lost")
+            if(customerLogin && _communicationLost && !firmwareUpgrading && !appClose){
                 sjloader.visible = false
                 sjloader.sourceComponent = npnt
                 sjloader.visible = true
@@ -422,7 +431,7 @@ ApplicationWindow {
     header: MainToolBar {
         id:         toolbar
         height:     ScreenTools.toolbarHeight
-        visible:    !QGroundControl.videoManager.fullScreen && globals.npntComplete
+        visible:    (!QGroundControl.videoManager.fullScreen && globals.npntComplete)
         npntComplete : globals.npntComplete
     }
 
