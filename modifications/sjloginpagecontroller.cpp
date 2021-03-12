@@ -9,6 +9,7 @@ SJLoginPageController::SJLoginPageController(QObject *parent): QObject(parent){
     qgcApp()->toolbox()->linkManager()->shutdown();
     qgcApp()->getCust()->getLatestGCSversion();
     loginStatus = false;
+    checkNow = false;
     connect(qgcApp()->getCust(), &CustomerData::correctDetails,         this, &SJLoginPageController::LoginSuccessful);
     connect(qgcApp()->getCust(), &CustomerData::wrongDetails,           this, &SJLoginPageController::LoginFailed);
 

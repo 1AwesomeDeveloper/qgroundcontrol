@@ -28,7 +28,6 @@ public:
 
     void checkDataBase(bool okButton);
 
-
 signals:
     void userNameChanged();
     void passWordChanged();

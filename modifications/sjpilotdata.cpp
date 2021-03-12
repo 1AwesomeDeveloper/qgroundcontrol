@@ -1,15 +1,8 @@
 #include "sjpilotdata.h"
-
+#include "QGCApplication.h"
 SJPilotData::SJPilotData(QString url, QObject *parent): QObject(parent), serverURL(url)
 {
 
-}
-
-void SJPilotData::get(QString location)
-{
-    qInfo() << "Getting from Server.....";
-    QNetworkReply* reply = manager.get(QNetworkRequest(QUrl(location)));
-    connect(reply, &QNetworkReply::readyRead, this, &SJPilotData::readyRead);
 }
 
 void SJPilotData::postEmailPass(QByteArray data)
@@ -19,6 +12,17 @@ void SJPilotData::postEmailPass(QByteArray data)
         request.setRawHeader("Content-Type", "application/json");
         QNetworkReply* reply = manager.post(request, data);
         connect(reply, &QNetworkReply::finished, this, &SJPilotData::readyRead);
+}
+
+void SJPilotData::logout()
+{
+    qInfo() <<"Requesting to Log Out...";
+    QString url = serverURL + "/logout";
+    QNetworkRequest request = QNetworkRequest(QUrl(url));
+    request.setHeader(QNetworkRequest::ContentTypeHeader , "application/json");
+    request.setRawHeader("auth",authCode);
+    QNetworkReply* reply = manager.get(request);
+    connect(reply,&QNetworkReply::readyRead, this, &SJPilotData::readyReadLogout);
 }
 
 void SJPilotData::readyRead()
@@ -34,14 +38,34 @@ void SJPilotData::readyRead()
         emit wrongDetails(jsonObject["error"].toObject()["message"].toString());
         return;
     }
-    if(jsonObject.find("loginToken") == jsonObject.end()){
+    if(jsonObject.find("accessToken") == jsonObject.end()){
         emit wrongDetails(replyStr);
         return;
     }
     authCode.clear();
-    QString x = jsonObject["loginToken"].toString();
+    QString x = jsonObject["accessToken"].toString();
     authCode.append(x);
     qInfo() << "authcode  = " << authCode;
     emit correctDetails();
 
+}
+
+void SJPilotData::readyReadLogout()
+{
+    qInfo() <<"Ready Read Logout";
+    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+    QString replyStr = (QString)reply->readAll();
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(replyStr.toUtf8());
+    qInfo() << replyStr;
+    QJsonObject jsonObject = jsonResponse.object();
+    // response is parsed
+    QString error;
+    if(jsonObject.find("error") != jsonObject.end()){
+        error = jsonObject["error"].toString();
+    }
+    else{
+        authCode.clear();
+    }
+    qgcApp()->getCust()->logOutCustomer();
+    emit logoutSignal(error);
 }

@@ -59,7 +59,7 @@ public slots:
     void postEmailPass(QString location, QByteArray data);
     void postOTP(QString location, QByteArray data);
     void postDroneNo(QString location); // post droneNo to check whether it's registered or not
-    void logOutCustomer(QString location, QByteArray data);
+    void logOutCustomer();
     void clearData();
     void clearVehicleData();
     void getLatestFirmwareInfo(QString location);

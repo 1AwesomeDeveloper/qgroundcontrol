@@ -96,14 +96,15 @@ void CustomerData::postDroneNo(QString location)
 
 }
 
-void CustomerData::logOutCustomer(QString location, QByteArray data)
+void CustomerData::logOutCustomer()
 {
     qInfo() <<"Requesting to Log Out...";
-    QNetworkRequest request = QNetworkRequest(QUrl(location));
+    QString url = serverURL + "/logout";
+    QNetworkRequest request = QNetworkRequest(QUrl(url));
     request.setHeader(QNetworkRequest::ContentTypeHeader , "application/json");
     request.setRawHeader("auth",tokenDroneNo);
-    QNetworkReply* reply = manager.post(request,data);
-    connect(reply,&QNetworkReply::readyRead, this, &CustomerData::readyReadDroneNo);
+    QNetworkReply* reply = manager.get(request);
+    connect(reply,&QNetworkReply::readyRead, this, &CustomerData::readyReadLogOut);
 }
 
 void CustomerData::clearData()
@@ -299,10 +300,8 @@ void CustomerData::readyReadLogOut()
     QJsonObject jsonObject = jsonResponse.object();
     // response is parsed
     if(jsonObject.find("error") != jsonObject.end()){
-        emit loggedOutFailed();
     }
     else{
-        emit loggedOutSuccessfully();
         tokenDroneNo.clear();
     }
 }
@@ -368,7 +367,6 @@ void CustomerData::readyReadDownload()
             qDebug() << reply->errorString();
             emit firmwareDownloadFailed(reply->errorString());
         }
-
         else
         {
             qDebug() << "1) " << reply->header(QNetworkRequest::ContentTypeHeader).toString();

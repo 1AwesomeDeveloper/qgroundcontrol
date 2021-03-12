@@ -28,13 +28,16 @@ class SJPilotData : public QObject
         void correctDetails();
         void wrongDetails(QString error);
 
+        void logoutSignal(QString error);
+
 
     public slots:
-        void get(QString location);
         void postEmailPass(QByteArray data);
+        void logout();
 
     private slots:
         void readyRead();
+        void readyReadLogout();
 
     private:
         QNetworkAccessManager manager;

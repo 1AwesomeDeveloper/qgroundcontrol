@@ -299,3 +299,10 @@ QString QGroundControlQmlGlobal::altitudeModeShortDescription(AltitudeMode altMo
     // Should never get here but makes some compilers happy
     return QString();
 }
+
+void QGroundControlQmlGlobal::logoutCustomer()
+{
+    // first pilot will be logged out then customer...
+    qgcApp()->getCust()->getPilot()->logout();
+    qgcApp()->getCust()->logOutCustomer();
+}
